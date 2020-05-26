@@ -1,4 +1,4 @@
-# MapCompression
+# Location Search
 ### Data Generation #
 Generate the data. Come up with a million points
 
