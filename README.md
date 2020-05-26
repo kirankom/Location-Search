@@ -1,5 +1,5 @@
 # Location Search
-### Data Generation #
+### Data Generation
 Generate the data. Come up with a million points
 
 ### Compression
