@@ -3,7 +3,7 @@ Grab, store, and compress user data in an efficient way
 
 # Data Generation
 - Grab your data from Google Maps. Multiply/replicate the data so it reflects the data of say 1000 users
-      1000 users * 1000 location events per user per day = 1 million data points
+- 1000 users * 1000 location events per user per day = 1 million data points
 
 # Storing Data
 - Store the data in Polygons Look into Bitmaps and Roaring Bitmaps
