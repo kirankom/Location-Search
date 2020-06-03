@@ -9,8 +9,7 @@ Grab, store, and compress user data in an efficient way
 - Store the data in Polygons Look into Bitmaps and Roaring Bitmaps
 
 # Compression
-- Use Roaring Bitmaps to compress the Polygon of data and then store it in vector form. The compressed data should be as close to real    
-  life as possible
+- Use Roaring Bitmaps to compress the Polygon of data and then store it in vector form. The compressed data should be as close to real life as possible
 
 # Timeline: 
 - Due in 8 - 12 Weeks (around July 20th - August 17th)
