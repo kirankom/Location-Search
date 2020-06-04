@@ -1,13 +1,14 @@
 //import com.google.maps.android.PolyUtil;
 import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
 import org.locationtech.spatial4j.io.PolyshapeWriter;
+import org.locationtech.spatial4j.shape.ShapeFactory.PolygonBuilder;
 
 import java.io.Writer;
 import java.io.IOException;
 import java.io.StringWriter;
 
 
-public class Polyline {
+public class Polyline implements PolygonBuilder {
 
     public static void main(String[] args) {
         Polyline p = new Polyline();
@@ -16,26 +17,29 @@ public class Polyline {
         // System.out.println(Integer.toBinaryString(num));
         // System.out.println(Integer.toBinaryString(num<<1));
         // print(num<<1);
-        double[] arr = new double[] {13};
+        double[] lats = new double[] {35.30844};
+        double[] longs = new double[] {-107.06049};
+        
+//        p.storeLocation(lat, lon, writer);
         
         StringWriter writer = new StringWriter();
-        for (int i = 0; i < arr.length; i++) {	
-        	p.storeLocation(-179.9832104, arr[i], writer);
+        for (int i = 0; i < lats.length; i++) {	
+        	p.encodeLocation(lats[i], longs[i], writer);
         }
         System.out.println(writer);
     }
     
-    public void storeLocation(double lat, double lon, StringWriter writer) {
+    public void encodeLocation(double lat, double lon, StringWriter writer) {
 //    	StringWriter writer = new StringWriter();
     	Encoder encoder = new Encoder(writer);
     	try {
     		encoder.write(lat, lon);
     	} catch (IOException e) {
     		System.exit(1);
-    	}
-    	
-    		
+    	}	
     }
+    
+    public String decodeLocation() {return "";}
 
     public String encode(double num) {
         
