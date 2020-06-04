@@ -8,6 +8,7 @@ import org.roaringbitmap.RoaringBitmap;
 //import java.io.Writer;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +22,13 @@ public class Polyline {
 //	Polyline() {
 ////		times = new ArrayList<>();
 //	}
+	
+	// stores the values in the bitmap from least to greatest, so can't exactly 
+	// know which number is the first timestamp just by looking at it.
+	// Though can just get the max number and assume that's the first timestamp, cuz
+	// it'll take about 30 years for that to not be true for the same user. But it could
+	// also be that if their data is more recent, then it wont be an issue.
+	// Also, the higher the first timestamp is, the longer this will last
 
     public static void main(String[] args) {
         Polyline p = new Polyline();
@@ -42,15 +50,17 @@ public class Polyline {
         
         
         List<Integer> times = new ArrayList<>();
-        System.out.println((int) 1504112536574L/1000);
-        System.out.println((int) 1549083336929L/1000);
-        System.out.println((int) 1559934248000L/1000);
+        times.add((int) (1504112536574L/1000));
+        times.add((int) (1549083336929L/1000));
+        times.add((int) (1559934248000L/1000));
         // times.add((int) 1504112536574L/1000);
         // times.add((int) 1549083336929L/1000);
         // times.add((int) 1559934248000L/1000);
         
         RoaringBitmap bitmap = p.compressTimestamp(times);
         System.out.println(Arrays.toString(bitmap.toArray()));
+        
+        p.serializeBitmap(bitmap);
     }
     
     public void encodeLocation(double lat, double lon, StringWriter writer) {
@@ -71,12 +81,20 @@ public class Polyline {
     	
     	// Since the first timestamp is a long, need to add it to the bitmap this way
     	bitmap.add(FIRST_TIMESTAMP);
+//    	System.out.println(FIRST_TIMESTAMP);
     	for (int i = 0; i < times.size(); i++) {
-    		System.out.println(times.get(i));
+//    		System.out.println("COUNTER = " + i);
+//    		System.out.println(times.get(i) - FIRST_TIMESTAMP);
     		bitmap.add(times.get(i) - FIRST_TIMESTAMP);
     	}
     	
     	return bitmap;
+    }
+    
+    public void serializeBitmap(RoaringBitmap bitmap) {
+    	byte[] array = new byte[bitmap.serializedSizeInBytes()];
+    	bitmap.serialize(ByteBuffer.wrap(array));
+    	System.out.println(Arrays.toString(array));
     }
     
 //    private List<Integer> times;
