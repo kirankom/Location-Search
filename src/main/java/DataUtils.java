@@ -81,7 +81,7 @@ public class DataUtils {
     }
 
     // assumes that the first timestamp is not part of the list
-    static RoaringBitmap addTimestamps(List<Long> times, int firstTime) {
+    static RoaringBitmap addTimestamps(List<Long> times, long firstTime) {
         RoaringBitmap bitmap = new RoaringBitmap();
 
         // Since the first timestamp is a long, need to add it to the bitmap this way
