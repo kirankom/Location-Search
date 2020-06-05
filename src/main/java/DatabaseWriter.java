@@ -14,17 +14,16 @@ import org.roaringbitmap.RoaringBitmap;
 
 public class DatabaseWriter {
 
-    // private final long FIRST_TIMESTAMP = ;
-
     public static void main(String[] args) {
-        DatabaseWriter dw = new DatabaseWriter();
+        DatabaseWriter dw = new DatabaseWriter(1);
         dw.parser();
     }
 
-    DatabaseWriter() {
+    DatabaseWriter(int userID) {
+        _userID = userID;
         _times = new ArrayList<>();
         _writer = new StringWriter();
-        // _firstTimestamp = 0L;
+        _firstTimestamp = 0L;
     }
 
     public void run() {
@@ -34,9 +33,6 @@ public class DatabaseWriter {
 
     public RoaringBitmap parser() {
         String filename = "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/java/test.json";
-
-        // List<Long> timestamps = new ArrayList<>();
-        // StringWriter writer = new StringWriter();
 
         try {
 
@@ -69,11 +65,13 @@ public class DatabaseWriter {
         } catch (ParseException e) {
             System.exit(1);
         }
-        return DataUtils.addTimestamps(_times, _times.get(0));
+        _firstTimestamp = _times.get(0);
+        return DataUtils.addTimestamps(_times, _firstTimestamp);
     }
 
+    private int _userID;
+    private Long _firstTimestamp;
     private List<Long> _times;
     private StringWriter _writer;
-    // private Long _firstTimestamp;
 
 }
