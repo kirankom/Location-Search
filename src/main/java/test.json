@@ -1,0 +1,100 @@
+{
+  "locations": [
+    {
+      "timestampMs": "1416593801893",
+      "latitudeE7": 373153775,
+      "longitudeE7": -1220485567,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416593928116",
+      "latitudeE7": 373152680,
+      "longitudeE7": -1220486616,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416594249921",
+      "latitudeE7": 373152356,
+      "longitudeE7": -1220487279,
+      "accuracy": 5
+    },
+    {
+      "timestampMs": "1416594373099",
+      "latitudeE7": 373152019,
+      "longitudeE7": -1220486519,
+      "accuracy": 5
+    },
+    {
+      "timestampMs": "1416594497165",
+      "latitudeE7": 373153332,
+      "longitudeE7": -1220487134,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416594620993",
+      "latitudeE7": 373153276,
+      "longitudeE7": -1220487117,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416594860982",
+      "latitudeE7": 373153309,
+      "longitudeE7": -1220487112,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416594984988",
+      "latitudeE7": 373153307,
+      "longitudeE7": -1220487164,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416595105596",
+      "latitudeE7": 373153082,
+      "longitudeE7": -1220486151,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416595231591",
+      "latitudeE7": 373152817,
+      "longitudeE7": -1220486348,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416595358876",
+      "latitudeE7": 373154067,
+      "longitudeE7": -1220485102,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416595484588",
+      "latitudeE7": 373152401,
+      "longitudeE7": -1220486204,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416595608703",
+      "latitudeE7": 373154326,
+      "longitudeE7": -1220488686,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416595731656",
+      "latitudeE7": 373154358,
+      "longitudeE7": -1220486943,
+      "accuracy": 10
+    },
+    {
+      "timestampMs": "1416595856715",
+      "latitudeE7": 373153608,
+      "longitudeE7": -1220486421,
+      "accuracy": 5
+    },
+    {
+      "timestampMs": "1416595981585",
+      "latitudeE7": 373153261,
+      "longitudeE7": -1220486486,
+      "accuracy": 5
+    }
+  ]
+}

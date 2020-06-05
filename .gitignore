@@ -1,3 +1,6 @@
 /LocationData
 /*.zip
 /target/
+/.vscode
+/.classpath
+/.settings/
