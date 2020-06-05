@@ -1,3 +1,4 @@
+package LocationSearch;
 
 //import com.google.maps.android.PolyUtil;
 import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
@@ -61,8 +62,8 @@ public class DataUtils {
         RoaringBitmap bitmap = p.compressTimestamp(times);
         // System.out.println(Arrays.toString(bitmap.toArray()));
 
-        ByteBuffer bbf = p.serializeBitmap(bitmap);
-        p.deserializeBitmap(bbf.array());
+        // ByteBuffer bbf = p.serializeBitmap(bitmap);
+        // p.deserializeBitmap(bbf.array());
     }
 
     public static void encodeLocation(double lat, double lon, StringWriter writer) {
@@ -95,27 +96,28 @@ public class DataUtils {
         return bitmap;
     }
 
-    public static ByteBuffer serializeBitmap(RoaringBitmap bitmap) {
-        byte[] arr = new byte[bitmap.serializedSizeInBytes()];
-        ByteBuffer bbf = ByteBuffer.wrap(arr);
+    public static byte[] serializeBitmap(RoaringBitmap bitmap) {
+        byte[] data = new byte[bitmap.serializedSizeInBytes()];
+        ByteBuffer bbf = ByteBuffer.wrap(data);
 
-        // System.out.println("ONE: " + Arrays.toString(arr));
+        System.out.println("ONE: " + Arrays.toString(data));
         bitmap.serialize(bbf);
-        // System.out.println("TWO: " + Arrays.toString(arr));
+        System.out.println("TWO: " + Arrays.toString(data));
 
-        return bbf;
+        return data;
     }
 
-    public static void deserializeBitmap(byte[] arr) {
+    public static RoaringBitmap deserializeBitmap(byte[] data) {
         // System.out.println(bbf.array());
-        RoaringBitmap test = new RoaringBitmap();
+        RoaringBitmap bitmap = new RoaringBitmap();
         try {
-            System.out.println("ONE: " + Arrays.toString(arr));
-            test.deserialize(ByteBuffer.wrap(arr));
-            System.out.println("TWO: " + Arrays.toString(arr));
+            // System.out.println("BEFORE: " + bitmap);
+            bitmap.deserialize(ByteBuffer.wrap(data));
+            // System.out.println("AFTER: " + bitmap);
         } catch (IOException e) {
-            System.exit(1);
+            System.exit(2);
         }
+        return bitmap;
     }
 
     // private RoaringBitmap _bitmap;
