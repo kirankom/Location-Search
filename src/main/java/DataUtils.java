@@ -32,38 +32,39 @@ public class DataUtils {
     // also be that if their data is more recent, then it wont be an issue.
     // Also, the higher the first timestamp is, the longer this will last
 
-    public static void main(String[] args) {
-        DataUtils p = new DataUtils();
-        int num = 0b11111110111011010101111000001111;
-        // // System.out.println(num);
-        // System.out.println(Integer.toBinaryString(num));
-        // System.out.println(Integer.toBinaryString(num<<1));
-        // print(num<<1);
-        double[] lats = new double[] { 373153775, 373149079, 373153102, 373377398 };
-        double[] longs = new double[] { -1220485567, -1220485080, -1220487537, -1220413614 };
+    // public static void main(String[] args) {
+    // DataUtils p = new DataUtils();
+    // int num = 0b11111110111011010101111000001111;
+    // // // System.out.println(num);
+    // // System.out.println(Integer.toBinaryString(num));
+    // // System.out.println(Integer.toBinaryString(num<<1));
+    // // print(num<<1);
+    // double[] lats = new double[] { 373153775, 373149079, 373153102, 373377398 };
+    // double[] longs = new double[] { -1220485567, -1220485080, -1220487537,
+    // -1220413614 };
 
-        // p.storeLocation(lat, lon, writer);
+    // // p.storeLocation(lat, lon, writer);
 
-        StringWriter writer = new StringWriter();
-        for (int i = 0; i < lats.length; i++) {
-            p.encodeLocation(lats[i], longs[i], writer);
-        }
-        // System.out.println(writer);
+    // StringWriter writer = new StringWriter();
+    // for (int i = 0; i < lats.length; i++) {
+    // p.encodeLocation(lats[i], longs[i], writer);
+    // }
+    // // System.out.println(writer);
 
-        List<Integer> times = new ArrayList<>();
-        times.add((int) (1504112536574L / 1000));
-        times.add((int) (1549083336929L / 1000));
-        times.add((int) (1559934248000L / 1000));
-        // times.add((int) 1504112536574L/1000);
-        // times.add((int) 1549083336929L/1000);
-        // times.add((int) 1559934248000L/1000);
+    // List<Integer> times = new ArrayList<>();
+    // times.add((int) (1504112536574L / 1000));
+    // times.add((int) (1549083336929L / 1000));
+    // times.add((int) (1559934248000L / 1000));
+    // // times.add((int) 1504112536574L/1000);
+    // // times.add((int) 1549083336929L/1000);
+    // // times.add((int) 1559934248000L/1000);
 
-        // RoaringBitmap bitmap = p.addTimestamps(times);
-        // System.out.println(Arrays.toString(bitmap.toArray()));
+    // // RoaringBitmap bitmap = p.addTimestamps(times);
+    // // System.out.println(Arrays.toString(bitmap.toArray()));
 
-        // ByteBuffer bbf = p.serializeBitmap(bitmap);
-        // p.deserializeBitmap(bbf.array());
-    }
+    // // ByteBuffer bbf = p.serializeBitmap(bitmap);
+    // // p.deserializeBitmap(bbf.array());
+    // }
 
     static void encodeLocation(double lat, double lon, StringWriter writer) {
         // StringWriter writer = new StringWriter();
@@ -80,16 +81,15 @@ public class DataUtils {
     }
 
     // assumes that the first timestamp is not part of the list
-    static RoaringBitmap addTimestamps(List<Integer> times, int firstTime) {
+    static RoaringBitmap addTimestamps(List<Long> times, int firstTime) {
         RoaringBitmap bitmap = new RoaringBitmap();
 
         // Since the first timestamp is a long, need to add it to the bitmap this way
-        bitmap.add(firstTime);
+        // bitmap.add(firstTime);
         // System.out.println(firstTime);
+
         for (int i = 0; i < times.size(); i++) {
-            // System.out.println("COUNTER = " + i);
-            // System.out.println(times.get(i) - firstTime);
-            bitmap.add(times.get(i) - firstTime);
+            bitmap.add((int) (times.get(i) - firstTime));
         }
 
         return bitmap;
