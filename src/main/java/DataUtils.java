@@ -1,4 +1,3 @@
-package LocationSearch;
 
 //import com.google.maps.android.PolyUtil;
 import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
@@ -59,14 +58,14 @@ public class DataUtils {
         // times.add((int) 1549083336929L/1000);
         // times.add((int) 1559934248000L/1000);
 
-        RoaringBitmap bitmap = p.compressTimestamp(times);
+        // RoaringBitmap bitmap = p.addTimestamps(times);
         // System.out.println(Arrays.toString(bitmap.toArray()));
 
         // ByteBuffer bbf = p.serializeBitmap(bitmap);
         // p.deserializeBitmap(bbf.array());
     }
 
-    public static void encodeLocation(double lat, double lon, StringWriter writer) {
+    static void encodeLocation(double lat, double lon, StringWriter writer) {
         // StringWriter writer = new StringWriter();
         Encoder encoder = new Encoder(writer);
         try {
@@ -76,38 +75,38 @@ public class DataUtils {
         }
     }
 
-    public static String decodeLocation() {
+    static String decodeLocation() {
         return "";
     }
 
     // assumes that the first timestamp is not part of the list
-    public static RoaringBitmap compressTimestamp(List<Integer> times) {
+    static RoaringBitmap addTimestamps(List<Integer> times, int firstTime) {
         RoaringBitmap bitmap = new RoaringBitmap();
 
         // Since the first timestamp is a long, need to add it to the bitmap this way
-        bitmap.add(FIRST_TIMESTAMP);
-        // System.out.println(FIRST_TIMESTAMP);
+        bitmap.add(firstTime);
+        // System.out.println(firstTime);
         for (int i = 0; i < times.size(); i++) {
             // System.out.println("COUNTER = " + i);
-            // System.out.println(times.get(i) - FIRST_TIMESTAMP);
-            bitmap.add(times.get(i) - FIRST_TIMESTAMP);
+            // System.out.println(times.get(i) - firstTime);
+            bitmap.add(times.get(i) - firstTime);
         }
 
         return bitmap;
     }
 
-    public static byte[] serializeBitmap(RoaringBitmap bitmap) {
+    static byte[] serializeBitmap(RoaringBitmap bitmap) {
         byte[] data = new byte[bitmap.serializedSizeInBytes()];
         ByteBuffer bbf = ByteBuffer.wrap(data);
 
-        System.out.println("ONE: " + Arrays.toString(data));
+        // System.out.println("ONE: " + Arrays.toString(data));
         bitmap.serialize(bbf);
-        System.out.println("TWO: " + Arrays.toString(data));
+        // System.out.println("TWO: " + Arrays.toString(data));
 
         return data;
     }
 
-    public static RoaringBitmap deserializeBitmap(byte[] data) {
+    static RoaringBitmap deserializeBitmap(byte[] data) {
         // System.out.println(bbf.array());
         RoaringBitmap bitmap = new RoaringBitmap();
         try {
