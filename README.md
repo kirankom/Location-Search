@@ -8,14 +8,12 @@ Grab, store, and compress user data in an efficient way
 - Encode and Decode the lat/long values using the given Polyline algorithm
 - Serialize the bitmap into a byte array, and Deserialize the byte array into a bitmap
 
-# Parser
-
-- Parse the JSON file into latitude, longitude, and timestamp
-- Need to come up with a user ID for each user, or will T-Mobile do that?
-
 # Database Writer
 
-- Input the data from the parser into the Utilities functions, and store the output in a database
+- Parse the JSON file into latitude, longitude, and timestamp
+  - Need to come up with a user ID for each user, or will that be given?
+- Store the output in a database - Which one???
+- 4 columns: userID, first timestamp, byte[] timestamps, lat/long encoded String
 
 # Data Generation
 
