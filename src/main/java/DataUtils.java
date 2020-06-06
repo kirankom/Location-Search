@@ -18,7 +18,7 @@ import java.util.Arrays;
 //public class Polyline implements PolygonBuilder {
 public class DataUtils {
 
-    private static final int FIRST_TIMESTAMP = (int) (1416593801893L / 1000);
+    // private static final int FIRST_TIMESTAMP = (int) (1416593801893L / 1000);
 
     // Polyline() {
     // _bitmap = new RoaringBitmap();
