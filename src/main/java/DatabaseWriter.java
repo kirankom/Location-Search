@@ -16,7 +16,7 @@ public class DatabaseWriter {
 
     public static void main(String[] args) {
         DatabaseWriter dw = new DatabaseWriter(1);
-        dw.parser();
+        dw.run();
     }
 
     DatabaseWriter(int userID) {
@@ -27,13 +27,13 @@ public class DatabaseWriter {
     }
 
     public void run() {
-        // Iterator iter = Parser.run(filename);
+        String filename = "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/java/test.json";
+
+        RoaringBitmap bitmap = parser(filename);
 
     }
 
-    public RoaringBitmap parser() {
-        String filename = "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/java/test.json";
-
+    public RoaringBitmap parser(String filename) {
         try {
 
             JSONObject jsonObj = (JSONObject) new JSONParser().parse(new FileReader(filename));
