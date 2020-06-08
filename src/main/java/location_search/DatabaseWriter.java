@@ -1,10 +1,10 @@
 package location_search;
 
 import org.locationtech.spatial4j.exception.InvalidShapeException;
+import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
 import org.locationtech.spatial4j.shape.Point;
 
 import java.io.StringWriter;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,67 +18,40 @@ import org.json.simple.parser.*;
 
 import org.roaringbitmap.RoaringBitmap;
 
+/**
+ * Grabs and saves the user location data -- timestamps, latitude, and longitude
+ * -- into a database
+ * 
+ * @author Meet Vora
+ * @since June 4th, 2020
+ */
 public class DatabaseWriter {
 
+    /** The userID of this user. */
     private int _userID;
+    /** The JSON file path to parse. */
+    private String _filename;
+    /** The first timestamp recorded in the location data. */
     private Long _firstTimestamp;
-    private List<Long> _times;
-    private StringWriter _writer;
 
-    public static void main(String[] args) {
-        DatabaseWriter dw = new DatabaseWriter(1);
-        dw.run();
-    }
-
-    DatabaseWriter(int userID) {
+    public DatabaseWriter(int userID, String filename) {
         _userID = userID;
-        _times = new ArrayList<Long>();
-        _writer = new StringWriter();
+        _filename = filename;
         _firstTimestamp = 0L;
     }
 
-    public void run() {
-        // String filename =
-        // "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/java/test.json";
-        //
-        // // userID - ready
-        // // first timestamp - ready
-        //
-        // // byte[] array - ready
-        // RoaringBitmap bitmap = parser(filename);
-        // byte[] data = DataUtils.serializeBitmap(bitmap);
-        //
-        // // lat/longs - ready
-        // String encoding = _writer.toString();
-        // System.out.println("ENCODING: " + encoding);
-        //
-        StringWriter test = new StringWriter();
-        // DataUtils.encodeLocation(41.85103, -97.67786, test);
-        DataUtils.encodeLocation(-119.99120, 41.96275, test);
-        System.out.println(test);
-
-        String encodedStr = test.toString();
-
+    /**
+     * Parses each data point consisting of a timestamp, latitude, and longitude
+     * from the file _filename and stores it in the inputted instances.
+     * 
+     * @param writer StringWriter instance that stores encoded String
+     * @param times  List object containing all timestamps stored in json file
+     * @return RoaringBitmap instance that compresses timestamps
+     */
+    public RoaringBitmap parser(StringWriter writer, List<Long> times) {
         try {
-            Point coordinate = DataUtils.decodeLocation(new StringReader("1ezb_G~wj{U"));
-            System.out.println("LONG: " + coordinate.getX() + "LAT: " + coordinate.getY());
-        } catch (InvalidShapeException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (java.text.ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-    }
-
-    public RoaringBitmap parser(String filename) {
-        try {
-
-            JSONObject jsonObj = (JSONObject) new JSONParser().parse(new FileReader(filename));
+            Encoder encoder = new Encoder(writer);
+            JSONObject jsonObj = (JSONObject) new JSONParser().parse(new FileReader(_filename));
 
             JSONArray jsonArray = (JSONArray) jsonObj.get("locations");
 
@@ -86,19 +59,13 @@ public class DatabaseWriter {
                 JSONObject location = (JSONObject) obj;
 
                 long timestamp = Long.parseLong((String) location.get("timestampMs"));
-                System.out.println("Time = " + timestamp);
 
                 double lat = ((Long) location.get("latitudeE7") * 1.0) / 1e7;
-                System.out.println("Latitude = " + lat);
 
                 double lon = ((Long) location.get("longitudeE7") * 1.0) / 1e7;
-                System.out.println("Longitude = " + lon);
-                System.out.println();
 
-                _times.add(timestamp);
-                DataUtils.encodeLocation(lat, lon, _writer);
-
-                // String timestamp = (String) location.get("timestampMs");
+                times.add(timestamp);
+                encoder.write(lon, lat);
             }
         } catch (FileNotFoundException e) {
             System.exit(1);
@@ -107,7 +74,23 @@ public class DatabaseWriter {
         } catch (ParseException e) {
             System.exit(1);
         }
-        _firstTimestamp = _times.get(0);
-        return DataUtils.addTimestamps(_times, _firstTimestamp);
+        _firstTimestamp = times.get(0);
+        return DataUtils.addTimestamps(times, _firstTimestamp);
+    }
+
+    /**
+     * Adds the user ID, the first timestamp, the compressed byte array of
+     * timestamps, and the encoded latitude/longitude String into a database as one
+     * entry.
+     */
+    public void databaseAdder() {
+        String json_file = "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
+        List<Long> times = new ArrayList<Long>();
+        StringWriter writer = new StringWriter();
+
+        RoaringBitmap bitmap = parser(writer, times);
+        byte[] data = DataUtils.serializeBitmap(bitmap);
+
+        String encoding = writer.toString();
     }
 }
