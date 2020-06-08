@@ -1,16 +1,25 @@
+package location_search;
 
 //import com.google.maps.android.PolyUtil;
 import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
-import org.locationtech.spatial4j.io.PolyshapeWriter;
-import org.locationtech.spatial4j.shape.ShapeFactory.PolygonBuilder;
+import org.locationtech.spatial4j.context.SpatialContext;
+import org.locationtech.spatial4j.exception.InvalidShapeException;
+import org.locationtech.spatial4j.io.PolyshapeReader;
+import org.locationtech.spatial4j.shape.Point;
+import org.locationtech.spatial4j.context.SpatialContextFactory;
+import org.locationtech.spatial4j.context.SpatialContext;
+//import org.locationtech.spatial4j.io.PolyshapeWriter;
+//import org.locationtech.spatial4j.shape.ShapeFactory.PolygonBuilder;
 
 import org.roaringbitmap.RoaringBitmap;
 
 //import java.io.Writer;
 import java.io.IOException;
 import java.io.InvalidObjectException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
+import java.text.ParseException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,14 +79,16 @@ public class DataUtils {
         // StringWriter writer = new StringWriter();
         Encoder encoder = new Encoder(writer);
         try {
-            encoder.write(lat, lon);
+            encoder.write(lon, lat);
         } catch (IOException e) {
             System.exit(1);
         }
     }
 
-    static String decodeLocation() {
-        return "";
+    static Point decodeLocation(StringReader reader) throws InvalidShapeException, IOException, ParseException {
+        PolyshapeReader decoder = new PolyshapeReader(SpatialContext.GEO, null);
+        Point coordinate = (Point) decoder.read(reader);
+        return coordinate;
     }
 
     // assumes that the first timestamp is not part of the list

@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.meet</groupId>
-    <artifactId>LSR</artifactId>
-    <version>1.0-SNAPSHOT</version>
+	<groupId>com.meet</groupId>
+	<artifactId>LSR</artifactId>
+	<version>1.0-SNAPSHOT</version>
 
-		<repositories>		
-			<repository>
+	<repositories>
+		<repository>
 
 			<id>tmobile-nexus-releases</id>
 
@@ -18,26 +17,26 @@
 		</repository>
 	</repositories>
 
-    <dependencies>
-        <!-- https://mvnrepository.com/artifact/com.google.maps/google-maps-services -->
-        <dependency>
-            <groupId>com.google.maps</groupId>
-            <artifactId>google-maps-services</artifactId>
-            <version>0.14.0</version>
-        </dependency>
+	<dependencies>
+		<!-- https://mvnrepository.com/artifact/com.google.maps/google-maps-services -->
+		<dependency>
+			<groupId>com.google.maps</groupId>
+			<artifactId>google-maps-services</artifactId>
+			<version>0.14.0</version>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.locationtech.spatial4j/spatial4j -->
 		<dependency>
-		    <groupId>org.locationtech.spatial4j</groupId>
-		    <artifactId>spatial4j</artifactId>
-		    <version>0.7</version>
+			<groupId>org.locationtech.spatial4j</groupId>
+			<artifactId>spatial4j</artifactId>
+			<version>0.7</version>
 		</dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/org.roaringbitmap/RoaringBitmap -->
 		<dependency>
-		    <groupId>org.roaringbitmap</groupId>
-		    <artifactId>RoaringBitmap</artifactId>
-		    <version>0.8.19</version>
+			<groupId>org.roaringbitmap</groupId>
+			<artifactId>RoaringBitmap</artifactId>
+			<version>0.8.19</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
@@ -47,15 +46,14 @@
 			<version>1.1.1</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.json/json -->
-		<!-- <dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20200518</version>
-		</dependency> -->
+		<!-- https://mvnrepository.com/artifact/log4j/log4j -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
 
-		
-    </dependencies>
+	</dependencies>
 
 
 </project>

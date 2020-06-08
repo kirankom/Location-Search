@@ -1,3 +1,5 @@
+package location_search;
+
 import java.io.FileReader;
 import java.util.Iterator;
 import java.util.Map;
