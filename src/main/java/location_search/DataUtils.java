@@ -57,8 +57,6 @@ public class DataUtils {
     public static void decodeLocation(byte[] compressedEncodedStr)
             throws InvalidShapeException, IOException, ParseException {
 
-        System.out.println("COMPRESSED BYTE STR: " + compressedEncodedStr);
-        System.out.println();
         String encodedStr = new String(compressedEncodedStr);
 
         SpatialContextFactory factory = new SpatialContextFactory();
@@ -67,13 +65,7 @@ public class DataUtils {
         PolyshapeReader reader = new PolyshapeReader(s, factory);
         BufferedLineString shape = (BufferedLineString) reader.read("1" + encodedStr);
 
-        System.out.println("Encoded String: " + encodedStr);
-        System.out.println();
-        int counter = 0;
-
         for (Point point : shape.getPoints()) {
-            counter++;
-            System.out.println(counter);
             System.out.println("Latitude: " + point.getY());
             System.out.println("Longitude: " + point.getX());
             System.out.println();
