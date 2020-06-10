@@ -3,6 +3,7 @@ package location_search;
 import org.locationtech.spatial4j.exception.InvalidShapeException;
 import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
 import org.locationtech.spatial4j.shape.Point;
+
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
@@ -95,7 +96,7 @@ public class DatabaseWriter {
         RoaringBitmap bitmap = parser(writer, times);
         byte[] timeData = DataUtils.serializeBitmap(bitmap);
 
-        byte[] encoding = convertStr(writer.toString());
+        byte[] compressedEncoding = convertStr(writer.toString());
     }
 
     /**
