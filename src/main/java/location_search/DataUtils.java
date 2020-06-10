@@ -49,12 +49,18 @@ public class DataUtils {
     /**
      * Decodes the given encoded String into latitude and longitude values.
      * 
-     * @param encodedStr The encoded String
+     * @param compressedEncodedStr A byte array of the compressed encoded String
      * @throws InvalidShapeException
      * @throws IOException
      * @throws ParseException
      */
-    public static void decodeLocation(String encodedStr) throws InvalidShapeException, IOException, ParseException {
+    public static void decodeLocation(byte[] compressedEncodedStr)
+            throws InvalidShapeException, IOException, ParseException {
+
+        System.out.println("COMPRESSED BYTE STR: " + compressedEncodedStr);
+        System.out.println();
+        String encodedStr = new String(compressedEncodedStr);
+
         SpatialContextFactory factory = new SpatialContextFactory();
         SpatialContext s = SpatialContext.GEO;
 
