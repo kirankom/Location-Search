@@ -1,22 +1,22 @@
 package location_search;
 
-import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
-import org.locationtech.spatial4j.context.SpatialContext;
-import org.locationtech.spatial4j.exception.InvalidShapeException;
-import org.locationtech.spatial4j.io.PolyshapeReader;
 import org.locationtech.spatial4j.shape.Point;
-import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.impl.BufferedLineString;
+import org.locationtech.spatial4j.shape.Shape;
+import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
+import org.locationtech.spatial4j.io.PolyshapeReader;
+import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.context.SpatialContextFactory;
 import org.locationtech.spatial4j.context.SpatialContext;
 
 import org.roaringbitmap.RoaringBitmap;
 
 import java.io.IOException;
-import java.io.InvalidObjectException;
+import java.text.ParseException;
+import org.locationtech.spatial4j.exception.InvalidShapeException;
+
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
-import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -49,19 +49,19 @@ public class DataUtils {
     /**
      * Decodes the given encoded String into latitude and longitude values.
      * 
-     * @param value The encoded String
+     * @param encodedStr The encoded String
      * @throws InvalidShapeException
      * @throws IOException
      * @throws ParseException
      */
-    public static void decodeLocation(String value) throws InvalidShapeException, IOException, ParseException {
+    public static void decodeLocation(String encodedStr) throws InvalidShapeException, IOException, ParseException {
         SpatialContextFactory factory = new SpatialContextFactory();
         SpatialContext s = SpatialContext.GEO;
 
         PolyshapeReader reader = new PolyshapeReader(s, factory);
-        BufferedLineString shape = (BufferedLineString) reader.read("1" + value);
+        BufferedLineString shape = (BufferedLineString) reader.read("1" + encodedStr);
 
-        System.out.println("Encoded String: " + value);
+        System.out.println("Encoded String: " + encodedStr);
         System.out.println();
         int counter = 0;
 

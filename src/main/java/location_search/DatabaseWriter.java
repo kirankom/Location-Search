@@ -3,20 +3,24 @@ package location_search;
 import org.locationtech.spatial4j.exception.InvalidShapeException;
 import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
 import org.locationtech.spatial4j.shape.Point;
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorOutputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import java.io.ByteArrayOutputStream;
 
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import org.roaringbitmap.RoaringBitmap;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
 
-import org.roaringbitmap.RoaringBitmap;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Grabs and saves the user location data -- timestamps, latitude, and longitude
@@ -29,7 +33,7 @@ public class DatabaseWriter {
 
     /** The userID of this user. */
     private int _userID;
-    /** The JSON file path to parse. */
+    /** The file path to the JSON file. */
     private String _filename;
     /** The first timestamp recorded in the location data. */
     private Long _firstTimestamp;
@@ -89,8 +93,36 @@ public class DatabaseWriter {
         StringWriter writer = new StringWriter();
 
         RoaringBitmap bitmap = parser(writer, times);
-        byte[] data = DataUtils.serializeBitmap(bitmap);
+        byte[] timeData = DataUtils.serializeBitmap(bitmap);
 
-        String encoding = writer.toString();
+        byte[] encoding = convertStr(writer.toString());
+    }
+
+    /**
+     * Compresses and returns given encoded String as a byte array.
+     * 
+     * @param encodedStr Encoded Latitude/Longitude String
+     * @return compressed byte array
+     */
+    public byte[] convertStr(String encodedStr) {
+        ByteArrayOutputStream fos = new ByteArrayOutputStream();
+
+        try {
+            CompressorOutputStream compressor = new CompressorStreamFactory()
+                    .createCompressorOutputStream(CompressorStreamFactory.GZIP, fos);
+            compressor.write(encodedStr.getBytes());
+            compressor.flush();
+            compressor.close();
+        } catch (CompressorException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        // System.out.println("Compressed byte String:" + fos.size() + ":::" +
+        // "Compression Type:::" + t);
+        return fos.toByteArray();
     }
 }
