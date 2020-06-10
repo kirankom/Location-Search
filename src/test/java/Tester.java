@@ -21,17 +21,22 @@ public class Tester {
     @Test
     public void testDecoding() {
         try {
-            DataUtils.decodeLocation("TESTINGGG");
+            String test = "HELLO WORLD!";
+            String newTest = new String(test.getBytes());
+            System.out.println(test);
+            System.out.println(newTest);
+            // DataUtils.decodeLocation("TESTINGGG");
         } catch (InvalidShapeException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
+        // catch (IOException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // } catch (ParseException e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
     }
 
     @Test
@@ -49,6 +54,6 @@ public class Tester {
         byte[] data = DataUtils.serializeBitmap(bitmap);
 
         String encoding = writer.toString();
-        DataUtils.decodeLocation(encoding);
+        DataUtils.decodeLocation(encoding.getBytes());
     }
 }
