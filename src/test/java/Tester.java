@@ -23,8 +23,8 @@ public class Tester {
         try {
             String test = "HELLO WORLD!";
             String newTest = new String(test.getBytes());
-            System.out.println(test);
-            System.out.println(newTest);
+            System.out.println("old: " + test);
+            System.out.println("new: " + newTest);
             // DataUtils.decodeLocation("TESTINGGG");
         } catch (InvalidShapeException e) {
             // TODO Auto-generated catch block
@@ -44,7 +44,7 @@ public class Tester {
         // String json_file =
         // "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
 
-        String json_file = "C:/Users/meetr/Documents/personal_projects/Location-Search/LocationData/Location History/Location History.json";
+        String json_file = "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
 
         DatabaseWriter dw = new DatabaseWriter(2143423, json_file);
         List<Long> times = new ArrayList<Long>();
@@ -54,6 +54,10 @@ public class Tester {
         byte[] data = DataUtils.serializeBitmap(bitmap);
 
         String encoding = writer.toString();
+        // System.out.println("BEFORE: " + encoding);
+        // System.out.println();
+
         DataUtils.decodeLocation(encoding.getBytes());
+        // System.out.println(encoding.equals(new String(encoding.getBytes())));
     }
 }
