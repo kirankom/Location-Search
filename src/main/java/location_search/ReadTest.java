@@ -1,4 +1,4 @@
-package lsr_ws;
+package location_search;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -23,16 +23,16 @@ public class ReadTest {
 		SpatialContextFactory factory = new SpatialContextFactory();
 		SpatialContext s = SpatialContext.GEO;
 		// TODO Auto-generated method stub
-		PolyshapeReader reader = new PolyshapeReader(s , factory);
-		
+		PolyshapeReader reader = new PolyshapeReader(s, factory);
 
-		BufferedLineString shape = (BufferedLineString) reader.read("1~wj{Uezb_G") ;
-		
+		BufferedLineString shape = (BufferedLineString) reader.read("1~wj{Uezb_G");
+
 		System.out.println(shape.getClass());
-		
-		shape.getPoints().forEach(point -> System.out.println("Latitude::" + point.getY() + "::Longitude" + point.getX()));
-		
-		
+
+		// shape.getPoints()
+		// .forEach(point -> System.out.println("Latitude::" + point.getY() +
+		// "::Longitude" + point.getX()));
+
 	}
 
 }
