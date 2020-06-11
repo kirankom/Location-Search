@@ -1,63 +1,56 @@
-package location_search;
+// package location_search;
 
-import java.io.FileReader;
-import java.util.Iterator;
-import java.util.Map;
+// import java.io.FileReader;
+// import java.io.StringWriter;
+// import java.util.Iterator;
+// import java.util.List;
+// import java.util.Map;
 
-import com.google.gson.JsonArray;
+// import com.google.gson.JsonArray;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.*;
+// import org.json.simple.JSONArray;
+// import org.json.simple.JSONObject;
+// import org.json.simple.parser.*;
+// import org.roaringbitmap.RoaringBitmap;
 
-public class Parser {
-    public static void main(String[] args) throws Exception {
-        Parser parser = new Parser();
-        String filename = "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/java/test.json";
-        // src\test\java\test.json
-        parser.run(filename);
-    }
+// public class Parser {
 
-    public void run(String filename) throws Exception {
-        JSONObject jsonObj = (JSONObject) new JSONParser().parse(new FileReader(filename));
+// /**
+// * Parses each data point consisting of a timestamp, latitude, and longitude
+// * from the file _filename and stores it in the inputted instances.
+// *
+// * @param writer StringWriter instance that stores encoded String
+// * @param times List object containing all timestamps stored in json file
+// * @return RoaringBitmap instance that compresses timestamps
+// */
+// public static RoaringBitmap parser(StringWriter writer, List<Long> times) {
+// try {
+// Encoder encoder = new Encoder(writer);
+// JSONObject jsonObj = (JSONObject) new JSONParser().parse(new
+// FileReader(_filename));
 
-        JSONArray jsonArray = (JSONArray) jsonObj.get("locations");
+// JSONArray jsonArray = (JSONArray) jsonObj.get("locations");
 
-        for (Object obj : jsonArray) {
-            JSONObject location = (JSONObject) obj;
+// for (Object obj : jsonArray) {
+// JSONObject location = (JSONObject) obj;
 
-            String timestamp = (String) location.get("timestampMs");
-            System.out.println("TIME = " + timestamp);
+// long timestamp = Long.parseLong((String) location.get("timestampMs"));
 
-            long lat = (Long) location.get("latitudeE7");
-            System.out.println("Latitude = " + lat);
+// double lat = ((Long) location.get("latitudeE7") * 1.0) / 1e7;
 
-            long lon = (Long) location.get("longitudeE7");
-            System.out.println("Longitude = " + lon);
-            System.out.println();
-            // String timestamp = (String) location.get("timestampMs");
-        }
+// double lon = ((Long) location.get("longitudeE7") * 1.0) / 1e7;
 
-        // JSONObject jo = (JSONObject) obj;
-
-        // Map address = ((Map) jo.get("address"));
-        // Iterator<Map.Entry> iter1 = address.entrySet().iterator();
-
-        // JSONArray ja = (JSONArray) jo.get("locations");
-
-        // Iterator<JSONObject> iter = ja.iterator();
-        // return iter;
-
-        // while (iter2.hasNext()) {
-        // Iterator<Map.Entry> iter1 = ((Map) iter2.next()).entrySet().iterator();
-
-        // while (iter1.hasNext()) {
-        // Map.Entry pair = iter1.next();
-        // if (!pair.getKey().equals("accuracy"))
-        // System.out.println(pair.getKey() + " : " + pair.getValue());
-        // }
-        // System.out.println();
-        // }
-
-    }
-}
+// times.add(timestamp);
+// encoder.write(lon, lat);
+// }
+// } catch (FileNotFoundException e) {
+// System.exit(1);
+// } catch (IOException e) {
+// System.exit(1);
+// } catch (ParseException e) {
+// System.exit(1);
+// }
+// _firstTimestamp = times.get(0);
+// return DataUtils.addTimestamps(times, _firstTimestamp);
+// }
+// }
