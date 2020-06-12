@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -40,8 +41,10 @@ public class DatabaseWriter {
 
     /** The userID of this user. */
     private int _userID;
-    /** The file path to the JSON file. */
+
+    /** The file path to the data file. */
     private String _filename;
+
     /** The first timestamp recorded in the location data. */
     private Long _firstTimestamp;
 
@@ -101,34 +104,32 @@ public class DatabaseWriter {
     }
 
     /**
-     * Creates a data table in the connected database
+     * Creates a data table in the connected database.
      * 
      * @throws SQLException
      * @throws ClassNotFoundException
      */
-    public void createTable() throws ClassNotFoundException, SQLException {
-        String command = "CREATE TABLE IF NOT EXISTS location_data ("
-                + "user_ID int NOT null, first_timestamp bigint NOT null, timestamps VARBINARY, locations VARBINARY)";
-
-        Connection conn = establishConnection();
-        PreparedStatement create = conn.prepareStatement(command);
-        create.executeUpdate();
+    public void createTable(String database_name) throws ClassNotFoundException, SQLException {
+        String command = "CREATE TABLE IF NOT EXISTS testing123 (user_ID INTEGER PRIMARY KEY NOT NULL, first_timestamp BIGINT NOT NULL, timestamps VARBINARY(30000) NOT NULL, locations VARBINARY(30000) NOT NULL)";
+        Connection conn = establishConnection(database_name);
+        Statement stmt = conn.createStatement();
+        stmt.executeUpdate(command);
+        // conn.close();
     }
 
     /**
-     * Establishes a connection with a MySQL database.
+     * Establishes a connection with the specified MySQL database.
      * 
      * @return database connection instance
      * @throws ClassNotFoundException
      * @throws SQLException
      */
-    public Connection establishConnection() throws ClassNotFoundException, SQLException {
+    public Connection establishConnection(String database_name) throws ClassNotFoundException, SQLException {
 
-        String database_name = "location_search";
-        String driver = "com.mysql.jdbc.Driver";
+        String driver = "com.mysql.cj.jdbc.Driver";
         String url = "jdbc:mysql://localhost:3306/" + database_name;
-        String username = "root";
-        String password = "4quhgfzn";
+        String username = "ls";
+        String password = "locationSearch";
 
         Class.forName(driver);
         Connection conn = DriverManager.getConnection(url, username, password);
