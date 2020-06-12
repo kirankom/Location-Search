@@ -12,8 +12,8 @@ Grab, store, and compress user data in an efficient way
 
 - Parse the JSON file into latitude, longitude, and timestamp
   - Need to come up with a user ID for each user, or will that be given?
-- Store the output in a database - Which one???
-- 4 columns: userID, first timestamp, byte[] timestamps, lat/long encoded String
+- Store the output in a MySQL Database
+- 4 columns: userID, first timestamp, byte[] timestamps, byte[] lat/long
 
 # Data Generation
 
