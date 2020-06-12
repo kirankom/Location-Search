@@ -69,7 +69,7 @@ public class Tester {
     @Test
     public void testDatabase() throws ClassNotFoundException, SQLException {
         DatabaseWriter dw = new DatabaseWriter(12345, filename);
-        String database_name = "location_search";
-        dw.createTable(database_name);
+        String databaseName = "location_search";
+        dw.databaseAdder(databaseName);
     }
 }

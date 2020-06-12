@@ -45,13 +45,9 @@ public class DatabaseWriter {
     /** The file path to the data file. */
     private String _filename;
 
-    /** The first timestamp recorded in the location data. */
-    private Long _firstTimestamp;
-
     public DatabaseWriter(int userID, String filename) {
         _userID = userID;
         _filename = filename;
-        _firstTimestamp = 0L;
     }
 
     /**
@@ -84,21 +80,47 @@ public class DatabaseWriter {
      * timestamps, and the encoded latitude/longitude String into a database as one
      * entry.
      */
-    public void databaseAdder() {
-        String json_file = "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
+    public void databaseAdder(String databaseName) {
+        // can change varbinary to (med/long)blob to increase size
+        String table_command = "CREATE TABLE IF NOT EXISTS testing123 (user_ID INTEGER PRIMARY KEY NOT NULL, first_timestamp BIGINT NOT NULL, timestamps VARBINARY(30000) NOT NULL, locations VARBINARY(30000) NOT NULL)";
+
+        // String json_file =
+        // "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
         List<Long> times = new ArrayList<Long>();
         StringWriter writer = new StringWriter();
 
         try {
+
             RoaringBitmap bitmap = DataUtils.parser(writer, times, _filename);
+            Long firstTimestamp = times.get(0);
             byte[] timeData = DataUtils.serializeBitmap(bitmap);
             byte[] compressedEncoding = convertStr(writer.toString());
+
+            Connection conn = establishConnection(databaseName);
+            Statement tableStmt = conn.createStatement();
+            // create the data table
+            tableStmt.executeUpdate(table_command);
+
+            PreparedStatement dataEntry = conn.prepareStatement(
+                    "INSERT INTO testing123(user_ID, first_timestamp, timestamps, locations) VALUES (?, ?, ?, ?)");
+            dataEntry.setInt(1, _userID);
+            dataEntry.setLong(2, firstTimestamp);
+            dataEntry.setBytes(3, timeData);
+            dataEntry.setBytes(4, compressedEncoding);
+            dataEntry.executeUpdate();
+
+            conn.close();
+            System.out.println("DONEEE!!!!!");
 
         } catch (FileNotFoundException e) {
             System.exit(1);
         } catch (IOException e) {
             System.exit(1);
         } catch (org.json.simple.parser.ParseException e) {
+            System.exit(1);
+        } catch (ClassNotFoundException e) {
+            System.exit(1);
+        } catch (SQLException e) {
             System.exit(1);
         }
     }
@@ -110,10 +132,7 @@ public class DatabaseWriter {
      * @throws ClassNotFoundException
      */
     public void createTable(String database_name) throws ClassNotFoundException, SQLException {
-        String command = "CREATE TABLE IF NOT EXISTS testing123 (user_ID INTEGER PRIMARY KEY NOT NULL, first_timestamp BIGINT NOT NULL, timestamps VARBINARY(30000) NOT NULL, locations VARBINARY(30000) NOT NULL)";
-        Connection conn = establishConnection(database_name);
-        Statement stmt = conn.createStatement();
-        stmt.executeUpdate(command);
+
         // conn.close();
     }
 
