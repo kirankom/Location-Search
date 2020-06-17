@@ -31,3 +31,13 @@ Grab, store, and compress user data in an efficient way
 # Timeline:
 
 - Due in 8 - 12 Weeks (around July 20th - August 17th)
+
+1. compression for bitmap timestamps
+2. decouple database writing with instantiation - initialize compression  
+   and encoder instances in constructor
+3. remove all the static methods
+4. later - database reader
+   - get a subset of the requested data for the given user id and a time range
+5. change varbinary byte size in database to longBlob
+
+Note: Make sure to call establish connection in test method
