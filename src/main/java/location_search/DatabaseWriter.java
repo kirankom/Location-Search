@@ -45,44 +45,47 @@ public class DatabaseWriter {
     /** The file path to the data file. */
     private String _filename;
 
-    public DatabaseWriter(int userID, String filename) {
+    /** Name of the database to store data in. */
+    private String _databaseName;
+
+    /** Username of database. */
+    private String _username;
+
+    /** Password of database. */
+    private String _password;
+
+    /** Compressor instance that compresses byte[] arrays. */
+    private CompressorOutputStream _compressor;
+
+    /** Connection instance used to connect to database. */
+    private Connection _conn;
+
+    DatabaseWriter(int userID, String filename, String databaseName, String username, String password) {
         _userID = userID;
         _filename = filename;
+        _databaseName = databaseName;
+        _username = username;
+        _password = password;
+        _compressor = null;
+        _conn = null;
+    }
+
+    DatabaseWriter(int userID, String filename, String databaseName) {
+        this(userID, filename, databaseName, "ls", "location");
     }
 
     /**
-     * Compresses and returns given encoded String as a byte array.
+     * Creates a table in the given database. Adds the user ID, the first timestamp,
+     * the compressed byte array of timestamps, and the encoded latitude/longitude
+     * String into a database as one entry.
      * 
-     * @param encodedStr Encoded Latitude/Longitude String
-     * @return compressed byte array
+     * @param databaseName name of database
      */
-    public byte[] convertStr(String encodedStr) {
-        ByteArrayOutputStream fos = new ByteArrayOutputStream();
+    void databaseAdder() {
+        // can change varbinary to (med/LONG)blob to increase size
+        String tableCommand = "CREATE TABLE IF NOT EXISTS testing123 (user_ID INTEGER PRIMARY KEY NOT NULL, first_timestamp BIGINT NOT NULL, timestamps VARBINARY(30000) NOT NULL, locations VARBINARY(30000) NOT NULL)";
 
-        try {
-            CompressorOutputStream compressor = new CompressorStreamFactory()
-                    .createCompressorOutputStream(CompressorStreamFactory.GZIP, fos);
-            compressor.write(encodedStr.getBytes());
-            compressor.flush();
-            compressor.close();
-        } catch (CompressorException e) {
-            System.exit(1);
-        } catch (IOException e) {
-            System.exit(1);
-        }
-        // System.out.println("Compressed byte String:" + fos.size() + ":::" +
-        // "Compression Type:::" + t);
-        return fos.toByteArray();
-    }
-
-    /**
-     * Adds the user ID, the first timestamp, the compressed byte array of
-     * timestamps, and the encoded latitude/longitude String into a database as one
-     * entry.
-     */
-    public void databaseAdder(String databaseName) {
-        // can change varbinary to (med/long)blob to increase size
-        String table_command = "CREATE TABLE IF NOT EXISTS testing123 (user_ID INTEGER PRIMARY KEY NOT NULL, first_timestamp BIGINT NOT NULL, timestamps VARBINARY(30000) NOT NULL, locations VARBINARY(30000) NOT NULL)";
+        String insertStmt = "INSERT INTO testing123(user_ID, first_timestamp, timestamps, locations) VALUES (?, ?, ?, ?)";
 
         // String json_file =
         // "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
@@ -93,24 +96,19 @@ public class DatabaseWriter {
 
             RoaringBitmap bitmap = DataUtils.parser(writer, times, _filename);
             Long firstTimestamp = times.get(0);
-            byte[] timeData = DataUtils.serializeBitmap(bitmap);
-            byte[] compressedEncoding = convertStr(writer.toString());
+            byte[] timeData = compress(DataUtils.serializeBitmap(bitmap));
+            byte[] compressedEncoding = compress(writer.toString().getBytes());
 
-            Connection conn = establishConnection(databaseName);
-            Statement tableStmt = conn.createStatement();
             // create the data table
-            tableStmt.executeUpdate(table_command);
+            Statement tableStmt = _conn.createStatement();
+            tableStmt.executeUpdate(tableCommand);
 
-            PreparedStatement dataEntry = conn.prepareStatement(
-                    "INSERT INTO testing123(user_ID, first_timestamp, timestamps, locations) VALUES (?, ?, ?, ?)");
+            PreparedStatement dataEntry = _conn.prepareStatement(insertStmt);
             dataEntry.setInt(1, _userID);
             dataEntry.setLong(2, firstTimestamp);
             dataEntry.setBytes(3, timeData);
             dataEntry.setBytes(4, compressedEncoding);
             dataEntry.executeUpdate();
-
-            conn.close();
-            System.out.println("DONEEE!!!!!");
 
         } catch (FileNotFoundException e) {
             System.exit(1);
@@ -118,22 +116,9 @@ public class DatabaseWriter {
             System.exit(1);
         } catch (org.json.simple.parser.ParseException e) {
             System.exit(1);
-        } catch (ClassNotFoundException e) {
-            System.exit(1);
         } catch (SQLException e) {
             System.exit(1);
         }
-    }
-
-    /**
-     * Creates a data table in the connected database.
-     * 
-     * @throws SQLException
-     * @throws ClassNotFoundException
-     */
-    public void createTable(String database_name) throws ClassNotFoundException, SQLException {
-
-        // conn.close();
     }
 
     /**
@@ -143,15 +128,44 @@ public class DatabaseWriter {
      * @throws ClassNotFoundException
      * @throws SQLException
      */
-    public Connection establishConnection(String database_name) throws ClassNotFoundException, SQLException {
+    void establishConnection() {
 
         String driver = "com.mysql.cj.jdbc.Driver";
-        String url = "jdbc:mysql://localhost:3306/" + database_name;
-        String username = "ls";
-        String password = "locationSearch";
+        String url = "jdbc:mysql://localhost:3306/" + _databaseName;
+        // String username = "ls";
+        // String password = "locationSearch";
 
-        Class.forName(driver);
-        Connection conn = DriverManager.getConnection(url, username, password);
-        return conn;
+        try {
+            Class.forName(driver);
+            _conn = DriverManager.getConnection(url, _username, _password);
+        } catch (ClassNotFoundException e) {
+            System.exit(1);
+        } catch (SQLException e) {
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Compresses and returns given encoded String as a byte array.
+     * 
+     * @param arr byte array to be compressed
+     * @return compressed byte array
+     */
+    byte[] compress(byte[] arr) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try {
+            _compressor = new CompressorStreamFactory().createCompressorOutputStream(CompressorStreamFactory.GZIP,
+                    baos);
+            _compressor.write(arr);
+            _compressor.flush();
+            _compressor.close();
+        } catch (CompressorException e) {
+            System.exit(1);
+        } catch (IOException e) {
+            System.exit(1);
+        }
+
+        return baos.toByteArray();
     }
 }
