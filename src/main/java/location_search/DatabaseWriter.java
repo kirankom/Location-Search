@@ -5,8 +5,11 @@ import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
 import org.locationtech.spatial4j.shape.Point;
 
 import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.roaringbitmap.RoaringBitmap;
@@ -26,24 +29,27 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.io.FileNotFoundException;
 
-import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
+import java.io.StringWriter;
 
 /**
  * Grabs and saves the user location data -- timestamps, latitude, and longitude
  * -- into a database
+ * 
+ * User of this class makes an instance of this class for each different databse
+ * they want to add stuff to
  * 
  * @author Meet Vora
  * @since June 4th, 2020
  */
 public class DatabaseWriter {
 
-    /** The userID of this user. */
-    private int _userID;
+    // /** The userID of this user. */
+    // private int _userID;
 
-    /** The file path to the data file. */
-    private String _filename;
+    // /** The file path to the data file. */
+    // private String _filename;
 
     /** Name of the database to store data in. */
     private String _databaseName;
@@ -54,24 +60,49 @@ public class DatabaseWriter {
     /** Password of database. */
     private String _password;
 
-    /** Compressor instance that compresses byte[] arrays. */
-    private CompressorOutputStream _compressor;
+    /** RoaringBitmap instance. */
+    // private RoaringBitmap _bitmap;
+
+    /**
+     * StringWriter instance used by RoaringBitmap to store encoded lat/long data.
+     */
+    private StringWriter _writer;
+
+    /** List of timestamps parsed from given file. */
+    private List<Long> _times;
+
+    /** Encoder instance used to encode lat/longs */
+    private Encoder _encoder;
+
+    /** Byte array input stream that stores decompressed data. */
+    private ByteArrayInputStream _inStream;
+
+    /** Byte array output stream that stores compressed data. */
+    private ByteArrayOutputStream _outStream;
 
     /** Connection instance used to connect to database. */
     private Connection _conn;
 
-    DatabaseWriter(int userID, String filename, String databaseName, String username, String password) {
-        _userID = userID;
-        _filename = filename;
+    /** Compressor instance that compresses byte[] arrays. */
+    // private CompressorOutputStream _compressor;
+
+    public DatabaseWriter(String databaseName, String username, String password) {
         _databaseName = databaseName;
         _username = username;
         _password = password;
-        _compressor = null;
-        _conn = null;
+        // _bitmap = null;
+        _writer = new StringWriter();
+        _times = new ArrayList<Long>();
+        _encoder = new Encoder(_writer);
+        _inStream = new ByteArrayInputStream(null);
+        _outStream = new ByteArrayOutputStream();
+        _conn = establishConnection();
+        // _compressor = setCompressor();
+
     }
 
-    DatabaseWriter(int userID, String filename, String databaseName) {
-        this(userID, filename, databaseName, "ls", "location");
+    public DatabaseWriter() {
+        this("location_search", "ls", "locationSearch");
     }
 
     /**
@@ -79,9 +110,10 @@ public class DatabaseWriter {
      * the compressed byte array of timestamps, and the encoded latitude/longitude
      * String into a database as one entry.
      * 
-     * @param databaseName name of database
+     * @param userID   userID of the user
+     * @param filename name of file to read location data from
      */
-    void databaseAdder() {
+    public void databaseAdder(int userID, String filename) {
         // can change varbinary to (med/LONG)blob to increase size
         String tableCommand = "CREATE TABLE IF NOT EXISTS testing123 (user_ID INTEGER PRIMARY KEY NOT NULL, first_timestamp BIGINT NOT NULL, timestamps VARBINARY(30000) NOT NULL, locations VARBINARY(30000) NOT NULL)";
 
@@ -89,24 +121,24 @@ public class DatabaseWriter {
 
         // String json_file =
         // "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
-        List<Long> times = new ArrayList<Long>();
-        StringWriter writer = new StringWriter();
+        RoaringBitmap bitmap = null;
 
         try {
 
-            RoaringBitmap bitmap = DataUtils.parser(writer, times, _filename);
-            Long firstTimestamp = times.get(0);
-            byte[] timeData = compress(DataUtils.serializeBitmap(bitmap));
-            byte[] compressedEncoding = compress(writer.toString().getBytes());
+            bitmap = parse(filename);
+            Long firstTimestamp = _times.get(0);
+
+            byte[] compressedTimeData = compress(DataUtils.serializeBitmap(bitmap));
+            byte[] compressedEncoding = compress(_writer.toString().getBytes());
 
             // create the data table
             Statement tableStmt = _conn.createStatement();
             tableStmt.executeUpdate(tableCommand);
 
             PreparedStatement dataEntry = _conn.prepareStatement(insertStmt);
-            dataEntry.setInt(1, _userID);
+            dataEntry.setInt(1, userID);
             dataEntry.setLong(2, firstTimestamp);
-            dataEntry.setBytes(3, timeData);
+            dataEntry.setBytes(3, compressedTimeData);
             dataEntry.setBytes(4, compressedEncoding);
             dataEntry.executeUpdate();
 
@@ -119,17 +151,20 @@ public class DatabaseWriter {
         } catch (SQLException e) {
             System.exit(1);
         }
+
+        // clear instance varibles for reusage
+        _writer.getBuffer().setLength(0);
+        _times.clear();
     }
 
     /**
      * Establishes a connection with the specified MySQL database.
      * 
      * @return database connection instance
-     * @throws ClassNotFoundException
-     * @throws SQLException
      */
-    void establishConnection() {
+    private Connection establishConnection() {
 
+        Connection conn = null;
         String driver = "com.mysql.cj.jdbc.Driver";
         String url = "jdbc:mysql://localhost:3306/" + _databaseName;
         // String username = "ls";
@@ -137,12 +172,48 @@ public class DatabaseWriter {
 
         try {
             Class.forName(driver);
-            _conn = DriverManager.getConnection(url, _username, _password);
+            conn = DriverManager.getConnection(url, _username, _password);
         } catch (ClassNotFoundException e) {
             System.exit(1);
         } catch (SQLException e) {
             System.exit(1);
         }
+        return conn;
+    }
+
+    /**
+     * Parses each data point consisting of a timestamp, latitude, and longitude
+     * from the file _filename and stores it in the inputted instances.
+     * 
+     * @param filename Name of file to parse
+     * @return RoaringBitmap instance that compresses timestamps
+     * @throws IOException
+     * @throws FileNotFoundException
+     * @throws org.json.simple.parser.ParseException
+     */
+    RoaringBitmap parse(String filename)
+            throws FileNotFoundException, IOException, org.json.simple.parser.ParseException {
+
+        // Encoder encoder = new Encoder(_writer);
+        JSONObject jsonObj = (JSONObject) new JSONParser().parse(new FileReader(filename));
+
+        // should change "locations" to whatever the name of the list in the
+        // json file is
+        JSONArray jsonArray = (JSONArray) jsonObj.get("locations");
+
+        for (Object obj : jsonArray) {
+            JSONObject location = (JSONObject) obj;
+
+            long timestamp = Long.parseLong((String) location.get("timestampMs"));
+
+            double lat = ((Long) location.get("latitudeE7") * 1.0) / 1e7;
+            double lon = ((Long) location.get("longitudeE7") * 1.0) / 1e7;
+
+            _times.add(timestamp);
+            _encoder.write(lon, lat);
+        }
+        // _firstTimestamp = times.get(0);
+        return DataUtils.addTimestamps(_times, _times.get(0));
     }
 
     /**
@@ -152,20 +223,60 @@ public class DatabaseWriter {
      * @return compressed byte array
      */
     byte[] compress(byte[] arr) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        CompressorOutputStream compressor = null;
 
         try {
-            _compressor = new CompressorStreamFactory().createCompressorOutputStream(CompressorStreamFactory.GZIP,
-                    baos);
-            _compressor.write(arr);
-            _compressor.flush();
-            _compressor.close();
-        } catch (CompressorException e) {
-            System.exit(1);
+            compressor = new CompressorStreamFactory().createCompressorOutputStream(CompressorStreamFactory.GZIP,
+                    _outStream);
+            compressor.write(arr);
+            compressor.flush();
+            compressor.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (CompressorException e) {
             System.exit(1);
         }
 
-        return baos.toByteArray();
+        byte[] data = _outStream.toByteArray();
+        _outStream.reset();
+
+        return data;
     }
+
+    byte[] decompress(byte[] arr) {
+        byte[] data = new byte[arr.length];
+
+        CompressorInputStream decompressor;
+        try {
+            decompressor = new CompressorStreamFactory().createCompressorInputStream(CompressorStreamFactory.GZIP,
+                    new ByteArrayInputStream(data));
+            decompressor.read();
+        } catch (CompressorException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return data;
+    }
+
+    // /**
+    // * Instantiates a CompressorOutputStream instance.
+    // *
+    // * @return CompressorOutputStream instance
+    // */
+    // private CompressorOutputStream setCompressor() {
+    // CompressorOutputStream compressor = null;
+    // try {
+    // compressor = new
+    // CompressorStreamFactory().createCompressorOutputStream(CompressorStreamFactory.GZIP,
+    // _byteArrStream);
+    // } catch (CompressorException e) {
+    // System.exit(1);
+    // }
+    // return compressor;
+    // }
 }
