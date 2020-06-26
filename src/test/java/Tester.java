@@ -23,13 +23,11 @@ public class Tester {
     }
 
     @Test
-    public void testDecoding() {
+    public void testEncoding() {
         try {
-            String test = "HELLO WORLD!";
-            String newTest = new String(test.getBytes());
-            System.out.println("old: " + test);
-            System.out.println("new: " + newTest);
-            // DataUtils.decodeLocation("TESTINGGG");
+            DatabaseWriter dw = new DatabaseWriter();
+            Roaringbitmap bitmap = dw.parse(filename);
+
         } catch (InvalidShapeException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -46,30 +44,39 @@ public class Tester {
     @Test
     public void fullProgram()
             throws InvalidShapeException, IOException, org.json.simple.parser.ParseException, java.text.ParseException {
+
+        DatabaseWriter dw = new DatabaseWriter();
+        dw.databaseAdder(12, filename);
+
         // String json_file =
         // "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
         // System.out.println("THIS IS THE ONE!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
         // DatabaseWriter dw = new DatabaseWriter(2143423, json_file);
-        List<Long> times = new ArrayList<Long>();
-        StringWriter writer = new StringWriter();
 
-        // RoaringBitmap bitmap = dw.parser(writer, times);
-        RoaringBitmap bitmap = DataUtils.parser(writer, times, filename);
-        byte[] data = DataUtils.serializeBitmap(bitmap);
+        // System.out.println("START OF PROGRAM!");
+        // List<Long> times = new ArrayList<Long>();
+        // StringWriter writer = new StringWriter();
+        // DatabaseWriter dw = new DatabaseWriter(1234, filename);
+        // // RoaringBitmap bitmap = dw.parser(writer, times);
+        // RoaringBitmap bitmap = DataUtils.parser(writer, times, filename);
+        // byte[] data = DataUtils.serializeBitmap(bitmap);
+        // System.out.println("TIMES BEFORE: " + data.length);
+        // System.out.println("TIMES AFTER: " + dw.convert(data).length);
 
-        String encoding = writer.toString();
-        // System.out.println("BEFORE: " + encoding);
-        // System.out.println();
-
-        DataUtils.decodeLocation(encoding.getBytes());
+        // String encoding = writer.toString();
+        // // System.out.println("BEFORE: " + encoding);
+        // // System.out.println();
+        // System.out.println("ENCODING: " + encoding.getBytes().length);
+        // DataUtils.decodeLocation(encoding.getBytes());
+        // System.out.println("ENDING!");
         // System.out.println(encoding.equals(new String(encoding.getBytes())));
     }
 
-    @Test
-    public void testDatabase() throws ClassNotFoundException, SQLException {
-        DatabaseWriter dw = new DatabaseWriter(12345, filename);
-        String databaseName = "location_search";
-        dw.databaseAdder(databaseName);
-    }
+    // @Test
+    // public void testDatabase() throws ClassNotFoundException, SQLException {
+    // DatabaseWriter dw = new DatabaseWriter(12345, filename);
+    // String databaseName = "location_search";
+    // dw.databaseAdder(databaseName);
+    // }
 }
