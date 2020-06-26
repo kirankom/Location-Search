@@ -20,6 +20,7 @@ import java.text.ParseException;
 import org.locationtech.spatial4j.exception.InvalidShapeException;
 
 import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -117,37 +118,4 @@ public class DataUtils {
         return bitmap;
     }
 
-    /**
-     * Parses each data point consisting of a timestamp, latitude, and longitude
-     * from the file _filename and stores it in the inputted instances.
-     * 
-     * @param writer StringWriter instance that stores encoded String
-     * @param times  List object containing all timestamps stored in json file
-     * @return RoaringBitmap instance that compresses timestamps
-     * @throws IOException
-     * @throws FileNotFoundException
-     * @throws org.json.simple.parser.ParseException
-     */
-    public static RoaringBitmap parser(StringWriter writer, List<Long> times, String filename)
-            throws FileNotFoundException, IOException, org.json.simple.parser.ParseException {
-
-        Encoder encoder = new Encoder(writer);
-        JSONObject jsonObj = (JSONObject) new JSONParser().parse(new FileReader(filename));
-
-        JSONArray jsonArray = (JSONArray) jsonObj.get("locations");
-
-        for (Object obj : jsonArray) {
-            JSONObject location = (JSONObject) obj;
-
-            long timestamp = Long.parseLong((String) location.get("timestampMs"));
-
-            double lat = ((Long) location.get("latitudeE7") * 1.0) / 1e7;
-            double lon = ((Long) location.get("longitudeE7") * 1.0) / 1e7;
-
-            times.add(timestamp);
-            encoder.write(lon, lat);
-        }
-        // _firstTimestamp = times.get(0);
-        return DataUtils.addTimestamps(times, times.get(0));
-    }
 }
