@@ -39,5 +39,6 @@ Grab, store, and compress user data in an efficient way
 4. later - database reader
    - get a subset of the requested data for the given user id and a time range
 5. change varbinary byte size in database to longBlob
+6. make list into iterable
 
 Note: Make sure to call establish connection in test method

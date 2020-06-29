@@ -33,6 +33,10 @@ import java.util.List;
  */
 public class DataUtils {
 
+    public DataUtils() {
+
+    }
+
     /**
      * Encodes the given latitude and longitude as a String, and stores it in the
      * provided StringWriter instance.
@@ -83,11 +87,11 @@ public class DataUtils {
      * @param firstTime First timestamp of user
      * @return RoaringBitmap instance
      */
-    public static RoaringBitmap addTimestamps(List<Long> times, long firstTime) {
+    public static RoaringBitmap addTimestamps(Iterable<Long> times, long firstTime) {
         RoaringBitmap bitmap = new RoaringBitmap();
 
-        for (int i = 0; i < times.size(); i++) {
-            bitmap.add((int) (times.get(i) - firstTime));
+        for (long i : times) {
+            bitmap.add((int) (i - firstTime));
         }
         return bitmap;
     }

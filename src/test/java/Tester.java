@@ -4,6 +4,7 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -23,15 +24,20 @@ public class Tester {
     }
 
     @Test
-    public void testEncoding() {
-        try {
-            DatabaseWriter dw = new DatabaseWriter();
-            Roaringbitmap bitmap = dw.parse(filename);
+    public void testEncoding()
+            throws InvalidShapeException, IOException, org.json.simple.parser.ParseException, java.text.ParseException {
+        DatabaseWriter dw = new DatabaseWriter();
+        RoaringBitmap bitmap = dw.parse(filename);
 
-        } catch (InvalidShapeException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        System.out.println(DataUtils.serializeBitmap(bitmap).length);
+        byte[] times = dw.compress((DataUtils.serializeBitmap(bitmap)));
+        System.out.println(times.length);
+
+        // System.out.println(Arrays.toString(times));
+        // System.out.println();
+
+        System.out.println(dw.decompress(times).length);
+
         // catch (IOException e) {
         // // TODO Auto-generated catch block
         // e.printStackTrace();
