@@ -8,6 +8,7 @@ import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,6 +33,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Grabs and saves the user location data -- timestamps, latitude, and longitude
@@ -94,7 +96,7 @@ public class DatabaseWriter {
         _writer = new StringWriter();
         _times = new ArrayList<Long>();
         _encoder = new Encoder(_writer);
-        _inStream = new ByteArrayInputStream(null);
+        _inStream = new ByteArrayInputStream(new byte[2]);
         _outStream = new ByteArrayOutputStream();
         _conn = establishConnection();
         // _compressor = setCompressor();
@@ -140,7 +142,8 @@ public class DatabaseWriter {
             dataEntry.setLong(2, firstTimestamp);
             dataEntry.setBytes(3, compressedTimeData);
             dataEntry.setBytes(4, compressedEncoding);
-            dataEntry.executeUpdate();
+            dataEntry.addBatch();
+            // dataEntry.executeUpdate();
 
         } catch (FileNotFoundException e) {
             System.exit(1);
@@ -191,7 +194,7 @@ public class DatabaseWriter {
      * @throws FileNotFoundException
      * @throws org.json.simple.parser.ParseException
      */
-    RoaringBitmap parse(String filename)
+    public RoaringBitmap parse(String filename)
             throws FileNotFoundException, IOException, org.json.simple.parser.ParseException {
 
         // Encoder encoder = new Encoder(_writer);
@@ -222,7 +225,7 @@ public class DatabaseWriter {
      * @param arr byte array to be compressed
      * @return compressed byte array
      */
-    byte[] compress(byte[] arr) {
+    public byte[] compress(byte[] arr) {
 
         CompressorOutputStream compressor = null;
 
@@ -244,14 +247,16 @@ public class DatabaseWriter {
         return data;
     }
 
-    byte[] decompress(byte[] arr) {
-        byte[] data = new byte[arr.length];
+    public byte[] decompress(byte[] arr) {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] data = null;
 
         CompressorInputStream decompressor;
         try {
             decompressor = new CompressorStreamFactory().createCompressorInputStream(CompressorStreamFactory.GZIP,
-                    new ByteArrayInputStream(data));
-            decompressor.read();
+                    new ByteArrayInputStream(arr));
+            IOUtils.copy(decompressor, output);
+            data = output.toByteArray();
         } catch (CompressorException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
