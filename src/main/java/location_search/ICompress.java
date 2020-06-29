@@ -1,19 +1,23 @@
-import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
-import org.roaringbitmap.RoaringBitmap;
+package location_search;
+
+import java.util.Iterator;
+
+// import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
+// import org.roaringbitmap.RoaringBitmap;
 
 public interface ICompress {
 
-    public byte[] compressTimestamps(Iterable<Long> times, long firstTime);
+    byte[] compressTimestamps(Iterable<Long> times, long firstTime);
 
-    public byte[] compressCoordinates(Iterable<Coordinate> coordiantes);
+    byte[] compressCoordinates(Iterable<Coordinate> coordiantes);
 
     /** Add timestamps in iterable to end of byte array */
-    public byte[] appendTimestamps(byte[] times, Iterable<Long> iterTimes, long firstTimestamp);
+    byte[] appendTimestamps(byte[] times, Iterable<Long> iterTimes, long firstTimestamp);
 
-    public byte[] appendCoordiantes(byte[] coordinates, Iterable<Coordinate> iterCoordinates);
+    byte[] appendCoordiantes(byte[] coordinates, Iterable<Coordinate> iterCoordinates);
 
-    public Iterable<Long> decompressTimestamps(byte[] compressedTimes);
+    Iterator<Integer> decompressTimestamps(byte[] compressedTimes);
 
-    public Iterable<Coordinate> decompressCoordinates(byte[] coordianteArray);
+    Iterable<Coordinate> decompressCoordinates(byte[] coordianteArray);
 
 }
