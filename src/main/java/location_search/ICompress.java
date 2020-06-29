@@ -1,7 +1,7 @@
 import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
 import org.roaringbitmap.RoaringBitmap;
 
-public interface ICompressor {
+public interface ICompress {
 
     public byte[] compressTimestamps(Iterable<Long> times, long firstTime);
 
