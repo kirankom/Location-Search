@@ -14,7 +14,7 @@ public class Record {
         this._coordinates = coordinates;
     }
 
-    public long userID() {
+    public long getUserID() {
         return _userID;
     }
 
