@@ -146,7 +146,7 @@ public class Compressor implements ICompress {
      * @param compressedEncodedStr A byte array of the compressed encoded String
      * @return List of Coordinates
      */
-    List<Coordinate> decodeLocation(byte[] decompressedCoordinates) {
+    private List<Coordinate> decodeLocation(byte[] decompressedCoordinates) {
 
         List<Coordinate> coordinates = new ArrayList<Coordinate>();
         String encodedStr = new String(decompressedCoordinates);
@@ -182,7 +182,7 @@ public class Compressor implements ICompress {
      * @param arr byte array to be compressed
      * @return compressed byte array (GZIP format)
      */
-    byte[] compress(byte[] arr) {
+    private byte[] compress(byte[] arr) {
 
         CompressorOutputStream compressor = null;
 
@@ -210,7 +210,7 @@ public class Compressor implements ICompress {
      * @param arr compressed byte array (GZIP format)
      * @return decompressed byte array
      */
-    byte[] decompress(byte[] arr) {
+    private byte[] decompress(byte[] arr) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         byte[] data = null;
 
@@ -237,7 +237,7 @@ public class Compressor implements ICompress {
      * @param bitmap RoaringBitmap instance
      * @return Serialized RoaringBitmap byte array
      */
-    byte[] serializeBitmap(RoaringBitmap bitmap) {
+    private byte[] serializeBitmap(RoaringBitmap bitmap) {
         byte[] data = new byte[bitmap.serializedSizeInBytes()];
         ByteBuffer bbf = ByteBuffer.wrap(data);
         bitmap.serialize(bbf);
@@ -250,7 +250,7 @@ public class Compressor implements ICompress {
      * @param data byte array containing serialized data
      * @return RoaringBitmap instance
      */
-    RoaringBitmap deserializeBitmap(byte[] data) {
+    private RoaringBitmap deserializeBitmap(byte[] data) {
         RoaringBitmap bitmap = new RoaringBitmap();
         try {
             bitmap.deserialize(ByteBuffer.wrap(data));
