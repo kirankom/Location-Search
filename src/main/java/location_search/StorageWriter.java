@@ -3,9 +3,14 @@ package location_search;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * @author Meet Vora
+ * @since June 29th, 2020
+ */
 public class StorageWriter implements IStoreWriter {
 
     /** Name of the database to store data in. */
@@ -19,9 +24,13 @@ public class StorageWriter implements IStoreWriter {
 
     private String _tableName;
 
-    private PreparedStatement _insertStmt;
-
     private Connection _conn;
+
+    private PreparedStatement _ps;
+
+    private Statement _stmt;
+
+    private ResultSet _rs;
 
     // private Statement _tableStmt;
 
@@ -29,9 +38,12 @@ public class StorageWriter implements IStoreWriter {
         this._databaseName = databaseName;
         this._username = username;
         this._password = password;
-        this._tableName = "WriterTest";
-        this._insertStmt = null;
+        this._tableName = "writertest";
         this._conn = establishConnection();
+        this._ps = null;
+        this._stmt = null;
+        this._rs = null;
+        setStmts();
         createTable();
     }
 
@@ -41,43 +53,64 @@ public class StorageWriter implements IStoreWriter {
 
     public void upsertRecord(Record record) {
 
-        String insertCmd = "IF EXISTS (SELECT user_ID FROM " + _tableName + " WHERE user_ID = ? INSERT INTO "
-                + _tableName + "(user_ID, first_timestamp, timestamps, coordinates) VALUES (?, ?, ?, ?) ELSE UPDATE "
-                + _tableName + " SET first_timestamp = ?, timestamps = ?, coordinates = ?" + "WHERE user_ID = ?";
-
         long userID = record.getUserID();
         long firstTimestamp = record.getFirstTimestamp();
         byte[] times = record.getTimes();
         byte[] coordinates = record.getCoordinates();
 
         try {
-            _insertStmt = _conn.prepareStatement(insertCmd);
-            _insertStmt.setLong(1, userID);
-            _insertStmt.setLong(2, userID);
-            _insertStmt.setLong(3, firstTimestamp);
-            _insertStmt.setBytes(4, times);
-            _insertStmt.setBytes(5, coordinates);
-            _insertStmt.setLong(6, firstTimestamp);
-            _insertStmt.setBytes(7, times);
-            _insertStmt.setBytes(8, coordinates);
-            _insertStmt.setLong(9, userID);
+            _ps.setLong(1, userID);
+            _ps.setLong(2, firstTimestamp);
+            _ps.setBytes(3, times);
+            _ps.setBytes(4, coordinates);
+            _ps.setLong(5, firstTimestamp);
+            _ps.setBytes(6, times);
+            _ps.setBytes(7, coordinates);
 
-            _insertStmt.addBatch();
+            _ps.addBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
 
+    public Record getRecord(long userID) {
+        String query = "SELECT * FROM " + _tableName + " WHERE user_ID = " + userID;
+        Long firstTimestamp = 0L;
+        byte[] times = null;
+        byte[] coordinates = null;
+
+        try {
+            _rs = _stmt.executeQuery(query);
+            while (_rs.next()) {
+                firstTimestamp = _rs.getLong("first_timestamp");
+                times = _rs.getBytes("timestamps");
+                coordinates = _rs.getBytes("coordinates");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);
         }
 
-    }
-
-    public Record getRecord(long userID) {
-
+        return new Record(userID, firstTimestamp, times, coordinates);
     }
 
     public void commit() {
         try {
-            _insertStmt.executeUpdate();
+            _ps.executeBatch();
+            _conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    public void close() {
+        try {
+            _conn.close();
+            _ps.close();
+            _stmt.close();
+            _rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);
@@ -86,7 +119,7 @@ public class StorageWriter implements IStoreWriter {
 
     private void createTable() {
         String tableCmd = "CREATE TABLE IF NOT EXISTS " + _tableName
-                + " (user_ID INTEGER PRIMARY KEY NOT NULL, first_timestamp BIGINT NOT NULL, timestamps VARBINARY(30000) NOT NULL, coordinates VARBINARY(30000) NOT NULL)";
+                + " (user_ID BIGINT PRIMARY KEY NOT NULL, first_timestamp BIGINT NOT NULL, timestamps VARBINARY(30000) NOT NULL, coordinates VARBINARY(30000) NOT NULL)";
 
         try {
             Statement tableStmt = _conn.createStatement();
@@ -113,11 +146,27 @@ public class StorageWriter implements IStoreWriter {
         try {
             Class.forName(driver);
             conn = DriverManager.getConnection(url, _username, _password);
+
+            // SETTING AUTOCOMMIT TO FALSE!
+            conn.setAutoCommit(false);
         } catch (ClassNotFoundException e) {
             System.exit(1);
         } catch (SQLException e) {
             System.exit(1);
         }
         return conn;
+    }
+
+    private void setStmts() {
+        String insertCmd = "INSERT INTO " + _tableName
+                + " (user_ID, first_timestamp, timestamps, coordinates) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE first_timestamp = ?, timestamps = ?, coordinates = ?";
+
+        try {
+            _ps = _conn.prepareStatement(insertCmd);
+            _stmt = _conn.createStatement();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 }
