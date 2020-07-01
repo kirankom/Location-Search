@@ -8,4 +8,6 @@ public interface IStoreWriter {
     public Record getRecord(long userID);
 
     public void commit();
+
+    public void close();
 }
