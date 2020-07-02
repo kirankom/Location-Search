@@ -68,8 +68,7 @@ public class Compressor implements ICompress {
         for (long i : times) {
             bitmap.add((int) (i - firstTime));
         }
-        byte[] temp = serializeBitmap(bitmap);
-        return compress(temp);
+        return compress(serializeBitmap(bitmap));
     }
 
     /**
@@ -123,20 +122,36 @@ public class Compressor implements ICompress {
         return ArrayUtils.addAll(originalData, newData);
     }
 
-    public Iterator<Integer> decompressTimestamps(byte[] compressedTimes) {
+    public Iterable<Long> decompressTimestamps(byte[] compressedTimes, long firstTimestamp) {
         byte[] decompressedData = decompress(compressedTimes);
         RoaringBitmap bitmap = deserializeBitmap(decompressedData);
-        return bitmap.iterator();
+        int[] zeroedData = bitmap.toArray();
+
+        List<Long> originalData = new ArrayList<Long>();
+        for (int time : zeroedData) {
+            originalData.add((long) (time + firstTimestamp));
+        }
+
+        // List<Long> somedata = new ArrayList();
+        // Iterator it = somedata.iterator();
+
+        // Iterable<Long> iter = new Iterable<Long> ()
+        // {
+
+        // @Override
+        // public Iterator<Long> iterator() {
+        // // TODO Auto-generated method stub
+        // return it;
+        // }
+
+        // }
+        // ;
+
+        return originalData;
     }
 
-    public Iterator<Long> decompressTimestamps(byte[] compressedTimes, long firstTimestamp) {
-        // how to add all the values to an iterable that's efficient?
-        // how to make other method return iterable as well?
-        return null;
-    }
-
-    public Iterable<Coordinate> decompressCoordinates(byte[] coordianteArray) {
-        return decodeLocation(decompress(coordianteArray));
+    public Iterable<Coordinate> decompressCoordinates(byte[] compressedCoordinates) {
+        return decodeLocation(decompress(compressedCoordinates));
     }
 
     /**
@@ -146,7 +161,7 @@ public class Compressor implements ICompress {
      * @param compressedEncodedStr A byte array of the compressed encoded String
      * @return List of Coordinates
      */
-    private List<Coordinate> decodeLocation(byte[] decompressedCoordinates) {
+    private Iterable<Coordinate> decodeLocation(byte[] decompressedCoordinates) {
 
         List<Coordinate> coordinates = new ArrayList<Coordinate>();
         String encodedStr = new String(decompressedCoordinates);
