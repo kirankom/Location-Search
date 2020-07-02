@@ -16,7 +16,7 @@ public interface ICompress {
 
     byte[] appendCoordiantes(byte[] coordinates, Iterable<Coordinate> iterCoordinates);
 
-    Iterator<Integer> decompressTimestamps(byte[] compressedTimes);
+    Iterable<Long> decompressTimestamps(byte[] compressedTimes, long firstTimestamp);
 
     Iterable<Coordinate> decompressCoordinates(byte[] coordianteArray);
 
