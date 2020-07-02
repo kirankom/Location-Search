@@ -1,6 +1,11 @@
 package location_search;
 
-// IStoreWriter
+/**
+ * Interface for the StorageWriter class.
+ * 
+ * @author Meet Vora
+ * @since June 29th, 2020
+ */
 public interface IStoreWriter {
 
     public void upsertRecord(Record record);
@@ -12,5 +17,7 @@ public interface IStoreWriter {
     public void close();
 
     public Iterable<Coordinate> search(long userID, long startTime, long endTime);
+
+    // public void delete(long userID);
 
 }

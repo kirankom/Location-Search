@@ -8,6 +8,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
+ * Creates a table and stores and retrieves Records of user data from a
+ * database.
+ * 
  * @author Meet Vora
  * @since June 29th, 2020
  */
@@ -22,17 +25,20 @@ public class StorageWriter implements IStoreWriter {
     /** Password of database. */
     private String _password;
 
+    /** Name of table. */
     private String _tableName;
 
+    /** Connection instance to database. */
     private Connection _conn;
 
+    /** PreparedStatement instance that inserts data into table. */
     private PreparedStatement _ps;
 
+    /** Statement instance that gets records from database. */
     private Statement _stmt;
 
+    /** ResultSet instance that gets records from database. */
     private ResultSet _rs;
-
-    // private Statement _tableStmt;
 
     public StorageWriter(String databaseName, String username, String password) {
         this._databaseName = databaseName;
@@ -51,8 +57,12 @@ public class StorageWriter implements IStoreWriter {
         this("location_search", "ls", "locationSearch");
     }
 
+    /**
+     * Inserts or updates the given record in the database.
+     * 
+     * @param record Record instance that contains user data
+     */
     public void upsertRecord(Record record) {
-
         long userID = record.getUserID();
         long firstTimestamp = record.getFirstTimestamp();
         byte[] times = record.getTimes();
@@ -73,6 +83,12 @@ public class StorageWriter implements IStoreWriter {
         }
     }
 
+    /**
+     * Obtains record of the user with given user ID from the database.
+     * 
+     * @param userID user ID of user
+     * @return Record instance that contains the specific user's data
+     */
     public Record getRecord(long userID) {
         String query = "SELECT * FROM " + _tableName + " WHERE user_ID = " + userID;
         Long firstTimestamp = 0L;
@@ -94,10 +110,20 @@ public class StorageWriter implements IStoreWriter {
         return new Record(userID, firstTimestamp, times, coordinates);
     }
 
+    /**
+     * 
+     */
     public Iterable<Coordinate> search(long userID, long startTime, long endTime) {
+        Compressor compressor = new Compressor();
+        Record record = getRecord(userID);
+        Iterable<Long> timestamps = compressor.decompressTimestamps(record.getTimes(), record.getFirstTimestamp());
+
         return null;
     }
 
+    /**
+     * Commits all the records added, to the database.
+     */
     public void commit() {
         try {
             _ps.executeBatch();
@@ -108,6 +134,9 @@ public class StorageWriter implements IStoreWriter {
         }
     }
 
+    /**
+     * Closes the connection to the database and all statements.
+     */
     public void close() {
         try {
             _conn.close();
@@ -120,6 +149,9 @@ public class StorageWriter implements IStoreWriter {
         }
     }
 
+    /**
+     * Creates the data table in the database if it doesn't already exist.
+     */
     private void createTable() {
         String tableCmd = "CREATE TABLE IF NOT EXISTS " + _tableName
                 + " (user_ID BIGINT PRIMARY KEY NOT NULL, first_timestamp BIGINT NOT NULL, timestamps VARBINARY(30000) NOT NULL, coordinates VARBINARY(30000) NOT NULL)";
@@ -160,6 +192,9 @@ public class StorageWriter implements IStoreWriter {
         return conn;
     }
 
+    /**
+     * Instantiates the PreparedStatement and Statement instances.
+     */
     private void setStmts() {
         String insertCmd = "INSERT INTO " + _tableName
                 + " (user_ID, first_timestamp, timestamps, coordinates) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE timestamps = ?, coordinates = ?";

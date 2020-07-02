@@ -29,6 +29,9 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
+ * Contains functionality that compresses lat/long coordinates wrapped in a
+ * Coordinate class and timestamps into byte arrays.
+ * 
  * @author Meet Vora
  * @since June 29th, 2020
  */
@@ -90,9 +93,7 @@ public class Compressor implements ICompress {
         }
         byte[] data = compress(_writer.toString().getBytes(StandardCharsets.UTF_8));
 
-        // reset writer once coordinates are encoded, compressed, and saved
         _writer.getBuffer().setLength(0);
-
         return data;
     }
 
@@ -131,6 +132,16 @@ public class Compressor implements ICompress {
         for (int time : zeroedData) {
             originalData.add((long) (time + firstTimestamp));
         }
+        return originalData;
+
+        // Iterator<Long> iter = originalData.iterator();
+        // Iterable<Long> iterable = new Iterable<Long>() {
+        // @Override
+        // public Iterator<Long> iterator() {
+        // return originalData.iterator();
+        // }
+        // }
+        // return iterable;
 
         // List<Long> somedata = new ArrayList();
         // Iterator it = somedata.iterator();
@@ -147,19 +158,26 @@ public class Compressor implements ICompress {
         // }
         // ;
 
-        return originalData;
     }
 
+    /**
+     * Takes in a byte array of compressed lat/long coordinates, then decompresses
+     * and decodes them. Returns an Iterable of Coordinates.
+     * 
+     * @param compressedCoordinates compressed byte array of lat/long coordinates
+     *                              (GZIP format)
+     * @return an Iterable of Coordinates
+     */
     public Iterable<Coordinate> decompressCoordinates(byte[] compressedCoordinates) {
         return decodeLocation(decompress(compressedCoordinates));
     }
 
     /**
-     * Decodes the given encoded byte array into latitude and longitude values
-     * stored as a list of Coordinates.
+     * Decodes the given encoded and decompressed byte array into latitude and
+     * longitude values stored in an Iterable of Coordinates.
      * 
-     * @param compressedEncodedStr A byte array of the compressed encoded String
-     * @return List of Coordinates
+     * @param decompressedEncodedStr byte array of the decompressed encoded String
+     * @return Iterable of Coordinates
      */
     private Iterable<Coordinate> decodeLocation(byte[] decompressedCoordinates) {
 
@@ -174,9 +192,6 @@ public class Compressor implements ICompress {
             BufferedLineString shape = (BufferedLineString) reader.read("1" + encodedStr);
             for (Point point : shape.getPoints()) {
                 coordinates.add(new Coordinate(point.getY(), point.getX()));
-                // System.out.println("Latitude: " + point.getY());
-                // System.out.println("Longitude: " + point.getX());
-                // System.out.println();
             }
         } catch (InvalidShapeException e) {
             e.printStackTrace();
@@ -192,7 +207,7 @@ public class Compressor implements ICompress {
     }
 
     /**
-     * Compresses and returns given encoded String as a byte array.
+     * Returns a compressed (GZIP format) version of the given byte array.
      * 
      * @param arr byte array to be compressed
      * @return compressed byte array (GZIP format)

@@ -1,14 +1,25 @@
 package location_search;
 
+/**
+ * Represents a lat/long coordinate pair.
+ * 
+ * @author Meet Vora
+ * @since June 29th 2020
+ */
 public class Coordinate {
 
+    /** Latitude of this coordinate. */
     private double lat;
+
+    /** Longitude of this coordinate. */
     private double lon;
 
     public Coordinate(double lat, double lon) {
         this.lat = lat;
         this.lon = lon;
     }
+
+    /* Getter methods */
 
     public double getLat() {
         return lat;

@@ -1,10 +1,24 @@
 package location_search;
 
+/**
+ * Represents a database record of one user that contains their user ID,
+ * timestamps, and location data.
+ * 
+ * @author Meet Vora
+ * @since June 29th 2020
+ */
 public class Record {
 
+    /** User ID of this user. */
     private long _userID;
+
+    /** First timestamp recorded of this user. */
     private long _firstTimestamp;
+
+    /** All timestamps of this user compressed into a byte array. */
     private byte[] _times;
+
+    /** All coordinates of this user encoded and compressed into a byte array. */
     private byte[] _coordinates;
 
     public Record(long userID, long firstTimestamp, byte[] times, byte[] coordinates) {
@@ -13,6 +27,8 @@ public class Record {
         this._times = times;
         this._coordinates = coordinates;
     }
+
+    /* Getter methods */
 
     public long getUserID() {
         return _userID;

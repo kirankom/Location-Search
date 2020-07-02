@@ -1,10 +1,11 @@
 package location_search;
 
-import java.util.Iterator;
-
-// import org.locationtech.spatial4j.io.PolyshapeWriter.Encoder;
-// import org.roaringbitmap.RoaringBitmap;
-
+/**
+ * Interface for the Compressor class.
+ * 
+ * @author Meet Vora
+ * @since June 29th, 2020
+ */
 public interface ICompress {
 
     byte[] compressTimestamps(Iterable<Long> times, long firstTime);
