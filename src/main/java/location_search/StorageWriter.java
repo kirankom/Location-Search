@@ -63,9 +63,8 @@ public class StorageWriter implements IStoreWriter {
             _ps.setLong(2, firstTimestamp);
             _ps.setBytes(3, times);
             _ps.setBytes(4, coordinates);
-            _ps.setLong(5, firstTimestamp);
-            _ps.setBytes(6, times);
-            _ps.setBytes(7, coordinates);
+            _ps.setBytes(5, times);
+            _ps.setBytes(6, coordinates);
 
             _ps.addBatch();
         } catch (SQLException e) {
@@ -93,6 +92,10 @@ public class StorageWriter implements IStoreWriter {
         }
 
         return new Record(userID, firstTimestamp, times, coordinates);
+    }
+
+    public Iterable<Coordinate> search(long userID, long startTime, long endTime) {
+        return null;
     }
 
     public void commit() {
@@ -159,7 +162,7 @@ public class StorageWriter implements IStoreWriter {
 
     private void setStmts() {
         String insertCmd = "INSERT INTO " + _tableName
-                + " (user_ID, first_timestamp, timestamps, coordinates) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE first_timestamp = ?, timestamps = ?, coordinates = ?";
+                + " (user_ID, first_timestamp, timestamps, coordinates) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE timestamps = ?, coordinates = ?";
 
         try {
             _ps = _conn.prepareStatement(insertCmd);

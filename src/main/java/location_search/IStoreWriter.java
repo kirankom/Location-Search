@@ -10,4 +10,7 @@ public interface IStoreWriter {
     public void commit();
 
     public void close();
+
+    public Iterable<Coordinate> search(long userID, long startTime, long endTime);
+
 }
