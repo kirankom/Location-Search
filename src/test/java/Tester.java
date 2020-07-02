@@ -1,3 +1,5 @@
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -9,80 +11,86 @@ import java.util.List;
 
 import org.junit.Test;
 import org.locationtech.spatial4j.exception.InvalidShapeException;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.*;
 import org.roaringbitmap.RoaringBitmap;
 
-import location_search.DatabaseWriter;
-import location_search.DataUtils;
+import location_search.Compressor;
+import location_search.StorageWriter;
+import location_search.Coordinate;
+import location_search.Record;
 
 public class Tester {
 
     String filename = "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
 
-    @Test
-    public void testParser() {
-        return;
+    Long userID = 1234L;
+    Record record = parse();
+
+    List<Long> times = new ArrayList<Long>();
+    List<Coordinate> coordinates = new ArrayList<Coordinate>();
+    List<Long> testTimes = setTestTimes();
+    List<Coordinate> testCoordinates = setTestCoordinates();
+
+    public Record parse() {
+        // Encoder encoder = new Encoder(_writer);
+        Compressor compressor = new Compressor();
+
+        JSONObject jsonObj = null;
+        try {
+            jsonObj = (JSONObject) new JSONParser().parse(new FileReader(filename));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (org.json.simple.parser.ParseException e) {
+            e.printStackTrace();
+        }
+
+        // should change "locations" to whatever the name of the list in the
+        // json file is
+        JSONArray jsonArray = (JSONArray) jsonObj.get("locations");
+
+        for (Object obj : jsonArray) {
+            JSONObject location = (JSONObject) obj;
+
+            long timestamp = Long.parseLong((String) location.get("timestampMs"));
+
+            double lat = ((Long) location.get("latitudeE7") * 1.0) / 1e7;
+            double lon = ((Long) location.get("longitudeE7") * 1.0) / 1e7;
+
+            times.add(timestamp);
+            coordinates.add(new Coordinate(lat, lon));
+        }
+        Long firstTimestamp = times.get(0);
+        // Long firstTimestamp = times.get(1) - times.get(0);
+
+        byte[] compressedTimes = compressor.compressTimestamps(times, firstTimestamp);
+        byte[] compressedCoordinates = compressor.compressCoordinates(coordinates);
+
+        return new Record(userID, firstTimestamp, compressedTimes, compressedCoordinates);
     }
 
-    @Test
-    public void testEncoding()
-            throws InvalidShapeException, IOException, org.json.simple.parser.ParseException, java.text.ParseException {
-        DatabaseWriter dw = new DatabaseWriter();
-        RoaringBitmap bitmap = dw.parse(filename);
-
-        System.out.println(DataUtils.serializeBitmap(bitmap).length);
-        byte[] times = dw.compress((DataUtils.serializeBitmap(bitmap)));
-        System.out.println(times.length);
-
-        // System.out.println(Arrays.toString(times));
-        // System.out.println();
-
-        System.out.println(dw.decompress(times).length);
-
-        // catch (IOException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // } catch (ParseException e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
+    public List<Long> setTestTimes() {
+        List<Long> test = new ArrayList<Long>();
+        test.add(1416593801893L);
+        test.add(1416593928116L);
+        test.add(1416594249921L);
+        test.add(1416594373099L);
+        test.add(1416594497165L);
+        test.add(1416594620993L);
+        test.add(1416594860982L);
+        test.add(1416594984988L);
+        return test;
     }
 
-    @Test
-    public void fullProgram()
-            throws InvalidShapeException, IOException, org.json.simple.parser.ParseException, java.text.ParseException {
-
-        DatabaseWriter dw = new DatabaseWriter();
-        dw.databaseAdder(12, filename);
-
-        // String json_file =
-        // "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
-        // System.out.println("THIS IS THE ONE!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-        // DatabaseWriter dw = new DatabaseWriter(2143423, json_file);
-
-        // System.out.println("START OF PROGRAM!");
-        // List<Long> times = new ArrayList<Long>();
-        // StringWriter writer = new StringWriter();
-        // DatabaseWriter dw = new DatabaseWriter(1234, filename);
-        // // RoaringBitmap bitmap = dw.parser(writer, times);
-        // RoaringBitmap bitmap = DataUtils.parser(writer, times, filename);
-        // byte[] data = DataUtils.serializeBitmap(bitmap);
-        // System.out.println("TIMES BEFORE: " + data.length);
-        // System.out.println("TIMES AFTER: " + dw.convert(data).length);
-
-        // String encoding = writer.toString();
-        // // System.out.println("BEFORE: " + encoding);
-        // // System.out.println();
-        // System.out.println("ENCODING: " + encoding.getBytes().length);
-        // DataUtils.decodeLocation(encoding.getBytes());
-        // System.out.println("ENDING!");
-        // System.out.println(encoding.equals(new String(encoding.getBytes())));
+    public List<Coordinate> setTestCoordinates() {
+        List<Coordinate> test = new ArrayList<Coordinate>();
+        test.add(new Coordinate(37.3152817, -122.0486348));
+        test.add(new Coordinate(37.3153348, -122.0488006));
+        return test;
     }
 
-    // @Test
-    // public void testDatabase() throws ClassNotFoundException, SQLException {
-    // DatabaseWriter dw = new DatabaseWriter(12345, filename);
-    // String databaseName = "location_search";
-    // dw.databaseAdder(databaseName);
-    // }
 }

@@ -1,13 +1,15 @@
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
-import location_search.Compressor;
+import static org.junit.Assert.*;
 
-public class CompressorTest {
+import java.util.List;
+import java.util.ArrayList;
+
+import location_search.Compressor;
+import location_search.Coordinate;
+
+public class CompressorTest extends Tester {
 
     private Compressor compressor = new Compressor();
-    private List<Long> times;
 
     @Test
     public void testTimeCompression() {
@@ -15,26 +17,35 @@ public class CompressorTest {
     }
 
     @Test
-    public void testTimeDecompression() {
-        compressor.decompressTimestamps(getCompressedTimes());
+    public void testCoordinateCompressionAndEncodingWriter() {
+        byte[] compressedCoordinates = record.getCoordinates();
+        System.out.println("AFTER: " + compressedCoordinates.length);
+        compressor.compressCoordinates(testCoordinates);
     }
 
-    public byte[] getCompressedTimes() {
+    @Test
+    public void testAppendTimestamps() {
+        byte[] originalData = record.getTimes();
+        byte[] newData = compressor.appendTimestamps(originalData, testTimes, record.getFirstTimestamp());
 
-        times = new ArrayList<Long>();
-        times.add(1416593801893L);
-        times.add(1416593928116L);
-        times.add(1416594249921L);
-        times.add(1416594373099L);
-        times.add(1416594497165L);
-        times.add(1416594620993L);
-        times.add(1416594860982L);
-        times.add(1416594984988L);
+        System.out.println("BEFORE: " + originalData.length);
+        System.out.println("AFTER: " + newData.length);
+        assertTrue(newData.length > originalData.length);
+    }
+
+    public void testAppendCoordinates() {
+
+    }
+
+    @Test
+    // public void testTimeDecompression() {
+    // compressor.decompressTimestamps(getCompressedTimes());
+    // }
+
+    public byte[] getCompressedTimes() {
 
         byte[] compressedTimes = compressor.compressTimestamps(times, 1416593801893L);
 
         return compressedTimes;
-
     }
-
 }

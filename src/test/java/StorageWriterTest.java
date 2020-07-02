@@ -28,48 +28,19 @@ public class StorageWriterTest extends Tester {
     public void testInsertCmd() {
         Record record1 = new Record(1, 7, new byte[] { 1, 2, 3 }, new byte[] { 4, 5, 6 });
         sw.upsertRecord(record1);
-        // sw.commit();
 
         Record record2 = new Record(2, 4, new byte[] { 1, 2, 3 }, new byte[] { 4, 5, 6 });
         sw.upsertRecord(record2);
 
-        Record record3 = new Record(2, 1111111, new byte[] { 1, 2, 3 }, new byte[] { 4, 5, 6 });
+        Record record3 = new Record(2, 11111, new byte[] { 1, 2, 3 }, new byte[] { 4, 5, 6 });
         sw.upsertRecord(record3);
         sw.commit();
         System.out.println("DONE!");
     }
 
     @Test
-    public void fullTest() throws FileNotFoundException, IOException, ParseException {
-        // Encoder encoder = new Encoder(_writer);
-        List<Long> times = new ArrayList<Long>();
-        List<Coordinate> coordinates = new ArrayList<Coordinate>();
-        Long userID = 1234L;
-
-        JSONObject jsonObj = (JSONObject) new JSONParser().parse(new FileReader(filename));
-
-        // should change "locations" to whatever the name of the list in the
-        // json file is
-        JSONArray jsonArray = (JSONArray) jsonObj.get("locations");
-
-        for (Object obj : jsonArray) {
-            JSONObject location = (JSONObject) obj;
-
-            long timestamp = Long.parseLong((String) location.get("timestampMs"));
-
-            double lat = ((Long) location.get("latitudeE7") * 1.0) / 1e7;
-            double lon = ((Long) location.get("longitudeE7") * 1.0) / 1e7;
-
-            times.add(timestamp);
-            coordinates.add(new Coordinate(lat, lon));
-        }
-        Long firstTimestamp = times.get(0);
-        // Long firstTimestamp = times.get(1) - times.get(0);
-
-        byte[] compressedTimes = compressor.compressTimestamps(times, firstTimestamp);
-        byte[] compressedCoordinates = compressor.compressCoordinates(coordinates);
-
-        Record record = new Record(userID, firstTimestamp, compressedTimes, compressedCoordinates);
+    public void fullTest() {
+        // gets Record from super class
         sw.upsertRecord(record);
         sw.commit();
         System.out.println("STORAGE COMPLETE!");
