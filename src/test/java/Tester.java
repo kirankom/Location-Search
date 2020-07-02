@@ -27,12 +27,11 @@ public class Tester {
     String filename = "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
 
     Long userID = 1234L;
-    Record record = parse();
-
     List<Long> times = new ArrayList<Long>();
     List<Coordinate> coordinates = new ArrayList<Coordinate>();
     List<Long> testTimes = setTestTimes();
     List<Coordinate> testCoordinates = setTestCoordinates();
+    Record record = parse();
 
     public Record parse() {
         // Encoder encoder = new Encoder(_writer);
@@ -49,8 +48,7 @@ public class Tester {
             e.printStackTrace();
         }
 
-        // should change "locations" to whatever the name of the list in the
-        // json file is
+        // should change "locations" to the name of the list in the json file
         JSONArray jsonArray = (JSONArray) jsonObj.get("locations");
 
         for (Object obj : jsonArray) {
