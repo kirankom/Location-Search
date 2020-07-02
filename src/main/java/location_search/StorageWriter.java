@@ -107,6 +107,12 @@ public class StorageWriter implements IStoreWriter {
             System.exit(1);
         }
 
+        ////////////////// not sure what to do here ///////////////////////
+        if (times == null && coordinates == null && firstTimestamp == 0L) {
+            System.err.println("Record not found");
+            return null;
+        }
+
         return new Record(userID, firstTimestamp, times, coordinates);
     }
 

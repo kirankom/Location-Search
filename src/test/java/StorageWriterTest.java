@@ -25,7 +25,7 @@ public class StorageWriterTest extends Tester {
     private StorageWriter sw = new StorageWriter();
 
     @Test
-    public void testInsertCmd() {
+    public void testUpsert() {
         Record record1 = new Record(1, 7, new byte[] { 1, 2, 3 }, new byte[] { 4, 5, 6 });
         sw.upsertRecord(record1);
 
@@ -39,7 +39,7 @@ public class StorageWriterTest extends Tester {
     }
 
     @Test
-    public void fullTest() {
+    public void testGetRecord() {
         // gets Record from super class
         sw.upsertRecord(record);
         sw.commit();
@@ -50,6 +50,7 @@ public class StorageWriterTest extends Tester {
         assertEquals(newRecord.getFirstTimestamp(), record.getFirstTimestamp());
         assertArrayEquals(newRecord.getTimes(), record.getTimes());
         assertArrayEquals(newRecord.getCoordinates(), record.getCoordinates());
+
         System.out.println("CHECK COMPLETE!");
     }
 }
