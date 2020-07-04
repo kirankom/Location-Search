@@ -55,77 +55,35 @@ public class Compressor implements ICompress {
     }
 
     /**
-     * Compresses given timestamps into byte array. Compresses by subtracting the
-     * first timestamp from all data entries, adding new data to Roaringbitmap
-     * instance, then compressing that byte array further using
-     * CompressorOutputStream.
+     * Compresses timestamps into byte array.
      * 
-     * @param times     Iterable instance containing all timestamps
-     * @param firstTime first timestamp of data
+     * @param times          Iterable instance containing all timestamps
+     * @param firstTimestamp first timestamp of data
      * @return compressed byte array (GZIP format)
      */
-    public byte[] compressTimestamps(Iterable<Long> times, long firstTime) {
-
-        RoaringBitmap bitmap = new RoaringBitmap();
-
-        for (long i : times) {
-            bitmap.add((int) (i - firstTime));
-        }
-        return compress(serializeBitmap(bitmap));
+    public byte[] compressTimestamps(Iterable<Long> times, long firstTimestamp) {
+        return compress(serializeBitmap(addToBitmap(times, firstTimestamp)));
     }
 
     /**
-     * Compresses lat/long coordinates into byte array by encoding coordinates into
-     * a string, then compressing and returning the String further using
-     * CompressorOutputStream.
+     * Compresses lat/long data into byte array.
      * 
      * @param coordinates Iterable instance containing all coordinates
      * @return compressed byte array (GZIP format)
      */
     public byte[] compressCoordinates(Iterable<Coordinate> coordinates) {
-        for (Coordinate co : coordinates) {
-            try {
-                _encoder.write(co.getLon(), co.getLat());
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
-        }
-        byte[] data = compress(_writer.toString().getBytes(StandardCharsets.UTF_8));
-
-        _writer.getBuffer().setLength(0);
-        return data;
+        return compress(encodeLocation(coordinates));
     }
 
     /**
-     * Converts the given new timestamps to a byte array and appends them to the
-     * given byte array
+     * Decompresses the compressed timestamps.
      * 
-     * @param originalData original timestamp data stored in byte array
-     * @param newTimes     new timestamps to convert and append to originalData
-     * @return new concatenated byte array
+     * @param compressedTimes compressed times (GZIP format)
+     * @param firstTimestamp  first timestamp of data
+     * @return Iterable instance containing all timestamps
      */
-    public byte[] appendTimestamps(byte[] originalData, Iterable<Long> newTimes, long firstTimestamp) {
-        byte[] newData = compressTimestamps(newTimes, firstTimestamp);
-        return ArrayUtils.addAll(originalData, newData);
-    }
-
-    /**
-     * Converts the new coordinates into a byte array and appends them to the given
-     * byte array.
-     * 
-     * @param originalData   orignial coordinates data stored in byte array
-     * @param newCoordinates new coordinates to convert and append to originalData
-     * @return new concatenated byte array
-     */
-    public byte[] appendCoordiantes(byte[] originalData, Iterable<Coordinate> newCoordinates) {
-        byte[] newData = compressCoordinates(newCoordinates);
-        return ArrayUtils.addAll(originalData, newData);
-    }
-
     public Iterable<Long> decompressTimestamps(byte[] compressedTimes, long firstTimestamp) {
-        byte[] decompressedData = decompress(compressedTimes);
-        RoaringBitmap bitmap = deserializeBitmap(decompressedData);
+        RoaringBitmap bitmap = deserializeBitmap(decompress(compressedTimes));
         int[] zeroedData = bitmap.toArray();
 
         List<Long> originalData = new ArrayList<Long>();
@@ -134,35 +92,26 @@ public class Compressor implements ICompress {
         }
         return originalData;
 
-        // Iterator<Long> iter = originalData.iterator();
-        // Iterable<Long> iterable = new Iterable<Long>() {
-        // @Override
-        // public Iterator<Long> iterator() {
-        // return originalData.iterator();
-        // }
-        // }
-        // return iterable;
-
-        // List<Long> somedata = new ArrayList();
-        // Iterator it = somedata.iterator();
-
-        // Iterable<Long> iter = new Iterable<Long> ()
-        // {
-
-        // @Override
-        // public Iterator<Long> iterator() {
-        // // TODO Auto-generated method stub
-        // return it;
-        // }
-
-        // }
-        // ;
-
+        /*
+         * // Iterator<Long> iter = originalData.iterator(); // Iterable<Long> iterable
+         * = new Iterable<Long>() { // @Override // public Iterator<Long> iterator() {
+         * // return originalData.iterator(); // } // } // return iterable;
+         * 
+         * // List<Long> somedata = new ArrayList(); // Iterator it =
+         * somedata.iterator();
+         * 
+         * // Iterable<Long> iter = new Iterable<Long> () // {
+         * 
+         * // @Override // public Iterator<Long> iterator() { // // TODO Auto-generated
+         * method stub // return it; // }
+         * 
+         * // } // ;
+         */
     }
 
     /**
-     * Takes in a byte array of compressed lat/long coordinates, then decompresses
-     * and decodes them. Returns an Iterable of Coordinates.
+     * Decompresses and decodes the given byte array of compressed lat/long data.
+     * Returns an Iterable of Coordinates.
      * 
      * @param compressedCoordinates compressed byte array of lat/long coordinates
      *                              (GZIP format)
@@ -170,6 +119,74 @@ public class Compressor implements ICompress {
      */
     public Iterable<Coordinate> decompressCoordinates(byte[] compressedCoordinates) {
         return decodeLocation(decompress(compressedCoordinates));
+    }
+
+    /**
+     * Appends the new timestamps to the given original time data, and orders them
+     * in ascending order automatically.
+     * 
+     * @param originalData   original timestamp data stored in byte array
+     * @param newTimes       new timestamps to append to originalData
+     * @param firstTimestamp first timestamp of data
+     * @return new concatenated byte array
+     */
+    public byte[] appendTimestamps(byte[] originalData, Iterable<Long> newTimes, long firstTimestamp) {
+        RoaringBitmap origBitmap = deserializeBitmap(decompress(originalData));
+        RoaringBitmap newBitmap = addToBitmap(newTimes, firstTimestamp);
+        RoaringBitmap concatenated = RoaringBitmap.or(origBitmap, newBitmap);
+
+        return compress(serializeBitmap(concatenated));
+
+        // byte[] origBitmapCompressed = decompress(originalData);
+        // byte[] newBitmapCompressed = serializeBitmap(addToBitmap(newTimes,
+        // firstTimestamp));
+        // return compress(ArrayUtils.addAll(origBitmapCompressed,
+        // newBitmapCompressed));
+
+        // ----------------------------- //
+
+        // byte[] newData = compressTimestamps(newTimes, firstTimestamp);
+        // return ArrayUtils.addAll(originalData, newData);
+    }
+
+    /**
+     * Appends the new coordinates to the given original location data.
+     * 
+     * @param originalData   orignial coordinates data stored in byte array
+     * @param newCoordinates new coordinates to convert and append to originalData
+     * @return new concatenated byte array
+     */
+    public byte[] appendCoordiantes(byte[] originalData, Iterable<Coordinate> newCoordinates) {
+        String decodedOriginal = new String(decompress(originalData));
+        String newEncoded = new String(encodeLocation(newCoordinates));
+
+        return compress((decodedOriginal + newEncoded).getBytes(StandardCharsets.UTF_8));
+    }
+
+    /* ==================================================== */
+    /* ================== Helper Methods ================== */
+    /* ==================================================== */
+
+    /**
+     * Encodes the lat/long data (stored in Coordinate instances) into a String.
+     * Returns a byte array of the encoded String.
+     * 
+     * @param coordinates Iterable instance containing all lat/long Coordinates
+     * @return encoded byte array
+     */
+    private byte[] encodeLocation(Iterable<Coordinate> coordinates) {
+        for (Coordinate co : coordinates) {
+            try {
+                _encoder.write(co.getLon(), co.getLat());
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+        byte[] data = _writer.toString().getBytes(StandardCharsets.UTF_8);
+        _writer.getBuffer().setLength(0);
+
+        return data;
     }
 
     /**
@@ -207,7 +224,8 @@ public class Compressor implements ICompress {
     }
 
     /**
-     * Returns a compressed (GZIP format) version of the given byte array.
+     * Returns a compressed (GZIP format) version of the given byte array using
+     * CompressorOutputStream.
      * 
      * @param arr byte array to be compressed
      * @return compressed byte array (GZIP format)
@@ -235,7 +253,7 @@ public class Compressor implements ICompress {
     }
 
     /**
-     * Decompresses and returns the given compressed array.
+     * Decompresses the given compressed array using CompressorInputStream.
      * 
      * @param arr compressed byte array (GZIP format)
      * @return decompressed byte array
@@ -259,6 +277,22 @@ public class Compressor implements ICompress {
         }
 
         return data;
+    }
+
+    /**
+     * Subtracts the first timestamp from all timestamp entries and adds data to
+     * Roaringbitmap instance.
+     * 
+     * @param times     Iterable instance containing all timestamps
+     * @param firstTime first timestamp of data
+     * @return RoaringBitmap instance containing timestamps
+     */
+    private RoaringBitmap addToBitmap(Iterable<Long> times, long firstTime) {
+        RoaringBitmap bitmap = new RoaringBitmap();
+        for (long i : times) {
+            bitmap.add((int) (i - firstTime));
+        }
+        return bitmap;
     }
 
     /**
