@@ -29,4 +29,9 @@ public class Coordinate {
         return lon;
     }
 
+    @Override
+    public String toString() {
+        return "LAT: " + getLat() + "  LON: " + getLon();
+    }
+
 }
