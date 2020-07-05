@@ -145,7 +145,7 @@ public class Compressor implements ICompress {
      * @param newCoordinates new coordinates to convert and append to originalData
      * @return new concatenated byte array
      */
-    public byte[] appendCoordiantes(byte[] originalData, Iterable<Coordinate> newCoordinates) {
+    public byte[] appendCoordinates(byte[] originalData, Iterable<Coordinate> newCoordinates) {
         String decodedOriginal = new String(decompress(originalData));
         String newEncoded = new String(encodeLocation(newCoordinates));
 
