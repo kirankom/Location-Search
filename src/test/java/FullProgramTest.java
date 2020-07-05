@@ -15,6 +15,7 @@ public class FullProgramTest extends Tester {
     @Test
     // series of timestamps and lat longs and data gets updated
     public void testDataInsert() {
+        // PASSED
 
         sw.upsertRecord(record);
 
@@ -51,7 +52,54 @@ public class FullProgramTest extends Tester {
         System.out.println("DONE WITH CHECKS");
     }
 
+    @Test
     // Updates data with today's data
-    // public void test
+    public void testUpdateData() {
+        // 1. Add testCo and testTimes to database
+        // 2. Pull data with getRecord
+        // 3. append appendTimes and co to it
+        // 4. upsert it
+        // 5. show commit and without commit if it updates
+        // 6. Pull data again
+        // 7. Print out new data to prove that it updated
 
+        long firstTestTimestamp = testTimes.get(0);
+        Record testRecord = new Record(6780, firstTestTimestamp,
+                compressor.compressTimestamps(testTimes, firstTestTimestamp),
+                compressor.compressCoordinates(testCoordinates));
+
+        sw.upsertRecord(testRecord);
+        sw.commit();
+
+        Record getTestRecord = sw.getRecord(6780);
+        byte[] newTimes = compressor.appendTimestamps(getTestRecord.getTimes(), appendTimes,
+                getTestRecord.getFirstTimestamp());
+        byte[] newCoordinates = compressor.appendCoordinates(getTestRecord.getCoordinates(), appendCoordinates);
+
+        sw.upsertRecord(
+                new Record(getTestRecord.getUserID(), getTestRecord.getFirstTimestamp(), newTimes, newCoordinates));
+        sw.commit();
+
+        System.out.println("ADDED TO DATABASE");
+        Record updatedTestRecord = sw.getRecord(getTestRecord.getUserID());
+
+        for (long time : compressor.decompressTimestamps(updatedTestRecord.getTimes(),
+                updatedTestRecord.getFirstTimestamp())) {
+            System.out.println(time);
+        }
+
+        System.out.println("-----------------------------------");
+
+        for (Coordinate co : compressor.decompressCoordinates(updatedTestRecord.getCoordinates())) {
+            System.out.println(co);
+        }
+
+        System.out.println("PRINTED");
+    }
+
+    @Test
+    // searching for timestamps with time bounds
+    public void testSearch() {
+
+    }
 }
