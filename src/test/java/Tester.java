@@ -1,24 +1,16 @@
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-import org.locationtech.spatial4j.exception.InvalidShapeException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
-import org.roaringbitmap.RoaringBitmap;
 
 import location_search.Compressor;
-import location_search.StorageWriter;
 import location_search.Coordinate;
 import location_search.Record;
 
@@ -73,16 +65,25 @@ public class Tester {
         return new Record(userID, firstTimestamp, compressedTimes, compressedCoordinates);
     }
 
+    @Test
+    public void testRecord() {
+        Compressor compressor = new Compressor();
+        Record test = new Record(1, 2, compressor.compressTimestamps(testTimes, testTimes.get(0)),
+                compressor.compressCoordinates(testCoordinates));
+        System.out.println("WORKS");
+    }
+
     private List<Long> setTestTimes() {
         List<Long> test = new ArrayList<Long>();
         test.add(1416593801893L);
         test.add(1416593928116L);
-        test.add(1416594249921L);
-        test.add(1416594373099L);
-        test.add(1416594497165L);
-        test.add(1416594620993L);
-        test.add(1416594860982L);
-        test.add(1416594984988L);
+        // test.add(1416593928119L);
+        // test.add(1416594249921L);
+        // test.add(1416594373099L);
+        // test.add(1416594497165L);
+        // test.add(1416594620993L);
+        // test.add(1416594860982L);
+        // test.add(1416594984988L);
         return test;
     }
 

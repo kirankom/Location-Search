@@ -7,18 +7,8 @@ import location_search.Compressor;
 import location_search.Record;
 import location_search.Coordinate;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.*;
-import org.roaringbitmap.RoaringBitmap;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.sql.Connection;
 
 public class StorageWriterTest extends Tester {
 

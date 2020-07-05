@@ -1,10 +1,6 @@
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import java.util.List;
-
-import java.util.ArrayList;
-
 import location_search.Compressor;
 import location_search.Coordinate;
 

@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.roaringbitmap.RoaringBitmap;
 
@@ -26,7 +25,6 @@ import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.compress.utils.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Contains functionality that compresses lat/long coordinates wrapped in a
@@ -83,6 +81,10 @@ public class Compressor implements ICompress {
      * @return Iterable instance containing all timestamps
      */
     public Iterable<Long> decompressTimestamps(byte[] compressedTimes, long firstTimestamp) {
+        if (firstTimestamp < 0) {
+            throw new IllegalArgumentException("Time must be positive.");
+        }
+
         RoaringBitmap bitmap = deserializeBitmap(decompress(compressedTimes));
         int[] zeroedData = bitmap.toArray();
 
@@ -117,15 +119,14 @@ public class Compressor implements ICompress {
      */
     public byte[] appendTimestamps(byte[] originalData, Iterable<Long> newTimes, long firstTimestamp) {
         // size of concat = size of orig + new
-
         RoaringBitmap origBitmap = deserializeBitmap(decompress(originalData));
         RoaringBitmap newBitmap = addToBitmap(newTimes, firstTimestamp);
-        RoaringBitmap concatenated = RoaringBitmap.or(origBitmap, newBitmap);
 
         if (!RoaringBitmap.and(origBitmap, newBitmap).isEmpty()) {
             throw new IllegalArgumentException("Overlapping timestamps between the old and new data are not allowed.");
         }
 
+        RoaringBitmap concatenated = RoaringBitmap.or(origBitmap, newBitmap);
         return compress(serializeBitmap(concatenated));
     }
 
@@ -155,6 +156,10 @@ public class Compressor implements ICompress {
      * @return encoded byte array
      */
     private byte[] encodeLocation(Iterable<Coordinate> coordinates) {
+        if (!coordinates.iterator().hasNext()) {
+            throw new IllegalArgumentException("Iterable of coordinates must not be empty.");
+        }
+
         for (Coordinate co : coordinates) {
             try {
                 _encoder.write(co.getLon(), co.getLat());
@@ -177,7 +182,6 @@ public class Compressor implements ICompress {
      * @return Iterable of Coordinates
      */
     private Iterable<Coordinate> decodeLocation(byte[] decompressedCoordinates) {
-
         List<Coordinate> coordinates = new ArrayList<Coordinate>();
         String encodedStr = new String(decompressedCoordinates);
 
@@ -192,13 +196,10 @@ public class Compressor implements ICompress {
             }
         } catch (InvalidShapeException e) {
             e.printStackTrace();
-            System.exit(1);
         } catch (IOException e) {
             e.printStackTrace();
-            System.exit(1);
         } catch (ParseException e) {
             e.printStackTrace();
-            System.exit(1);
         }
         return coordinates;
     }
@@ -212,8 +213,11 @@ public class Compressor implements ICompress {
      */
     private byte[] compress(byte[] arr) {
 
-        CompressorOutputStream compressor = null;
+        if (arr.length == 0) {
+            throw new IllegalArgumentException("Data arrays must not be empty");
+        }
 
+        CompressorOutputStream compressor = null;
         try {
             compressor = new CompressorStreamFactory().createCompressorOutputStream(CompressorStreamFactory.GZIP,
                     _outStream);
@@ -245,9 +249,8 @@ public class Compressor implements ICompress {
         }
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        byte[] data = null;
-
         CompressorInputStream decompressor;
+        byte[] data = null;
         try {
             decompressor = new CompressorStreamFactory().createCompressorInputStream(CompressorStreamFactory.GZIP,
                     new ByteArrayInputStream(arr));
