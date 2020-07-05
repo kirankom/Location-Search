@@ -28,7 +28,7 @@ public class Record {
         this._coordinates = coordinates;
     }
 
-    /* Getter methods */
+    /* ================== Getter Methods ================== */
 
     public long getUserID() {
         return _userID;

@@ -19,7 +19,7 @@ public class Coordinate {
         this.lon = lon;
     }
 
-    /* Getter methods */
+    /* ================== Getter Methods ================== */
 
     public double getLat() {
         return lat;
