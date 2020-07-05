@@ -6,6 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Creates a table and stores and retrieves Records of user data from a
@@ -75,7 +78,6 @@ public class StorageWriter implements IStoreWriter {
             _ps.setBytes(4, coordinates);
             _ps.setBytes(5, times);
             _ps.setBytes(6, coordinates);
-
             _ps.addBatch();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -117,14 +119,44 @@ public class StorageWriter implements IStoreWriter {
     }
 
     /**
+     * Returns an iterable of Coordinates of lat/longs that describes the user
+     * location within the given time range.
      * 
+     * Issues: 1. Doesn't assume number of timestamps and coordinates are the same,
+     * but doesn't check for them either. 2. Haven't finished error throwing either.
+     * 
+     * @param userID    user ID of user
+     * @param startTime start time of search interval
+     * @param endTime   end time of search interval
+     * @return Iterable of Coordinates that fall within time interval
      */
     public Iterable<Coordinate> search(long userID, long startTime, long endTime) {
+
+        if (startTime < 0 || startTime >= endTime) {
+            // throw error for invalid input
+        }
+
+        List<Coordinate> intervalCoordinates = new ArrayList<Coordinate>();
         Compressor compressor = new Compressor();
         Record record = getRecord(userID);
-        Iterable<Long> timestamps = compressor.decompressTimestamps(record.getTimes(), record.getFirstTimestamp());
+        boolean end = false;
 
-        return null;
+        Iterator<Long> timestampsIter = compressor.decompressTimestamps(record.getTimes(), record.getFirstTimestamp())
+                .iterator();
+        Iterator<Coordinate> coordinateIter = compressor.decompressCoordinates(record.getCoordinates()).iterator();
+
+        while (timestampsIter.hasNext() && coordinateIter.hasNext() && !end) {
+            long time = timestampsIter.next();
+            Coordinate co = coordinateIter.next();
+
+            if (time <= endTime && time >= startTime) {
+                intervalCoordinates.add(co);
+            }
+            if (time >= endTime) {
+                end = true;
+            }
+        }
+        return intervalCoordinates;
     }
 
     /**
@@ -154,6 +186,10 @@ public class StorageWriter implements IStoreWriter {
             System.exit(1);
         }
     }
+
+    /* ==================================================== */
+    /* ================== Helper Methods ================== */
+    /* ==================================================== */
 
     /**
      * Creates the data table in the database if it doesn't already exist.
@@ -199,15 +235,15 @@ public class StorageWriter implements IStoreWriter {
     }
 
     /**
-     * Instantiates the PreparedStatement and Statement instances.
+     * Instantiates the Statement and PreparedStatement instances.
      */
     private void setStmts() {
         String insertCmd = "INSERT INTO " + _tableName
                 + " (user_ID, first_timestamp, timestamps, coordinates) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE timestamps = ?, coordinates = ?";
 
         try {
-            _ps = _conn.prepareStatement(insertCmd);
             _stmt = _conn.createStatement();
+            _ps = _conn.prepareStatement(insertCmd);
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);
