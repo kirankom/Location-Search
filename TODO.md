@@ -3,6 +3,7 @@
 2. change varbinary byte size in database to longBlob
 3. make list into iterable
 4. Abstract away error throwing
+   - throw errors for invalid negative inputs, empty iterables, etc
 5. Use Log4j instead of print statements
 6. DONE - Test Compression methods
 
