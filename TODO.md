@@ -4,11 +4,11 @@
 3. make list into iterable
 4. Abstract away error throwing
 5. Use Log4j instead of print statements
-6. Test Compression methods
+6. DONE - Test Compression methods
 
 Three test cases:
 
-1. series of timestampts and lat longs and data gets updated
+1. series of timestamps and lat longs and data gets updated
 2. Updates data with today's data
 3. searching for timestamps with time bounds
 
