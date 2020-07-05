@@ -248,6 +248,11 @@ public class Compressor implements ICompress {
      * @return decompressed byte array
      */
     private byte[] decompress(byte[] arr) {
+
+        if (arr.length == 0) {
+            throw new IllegalArgumentException("Data arrays must not be empty");
+        }
+
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         byte[] data = null;
 
@@ -259,10 +264,8 @@ public class Compressor implements ICompress {
             data = output.toByteArray();
         } catch (CompressorException e) {
             e.printStackTrace();
-            System.exit(1);
         } catch (IOException e) {
             e.printStackTrace();
-            System.exit(1);
         }
 
         return data;
@@ -276,10 +279,17 @@ public class Compressor implements ICompress {
      * @param firstTime first timestamp of data
      * @return RoaringBitmap instance containing timestamps
      */
-    private RoaringBitmap addToBitmap(Iterable<Long> times, long firstTime) {
+    private RoaringBitmap addToBitmap(Iterable<Long> times, long firstTimestamp) {
+        if (firstTimestamp < 0) {
+            throw new IllegalArgumentException("Time must be positive.");
+        }
+        if (!times.iterator().hasNext()) {
+            throw new IllegalArgumentException("Iterable of timestamps must not be empty.");
+        }
+
         RoaringBitmap bitmap = new RoaringBitmap();
         for (long i : times) {
-            bitmap.add((int) (i - firstTime));
+            bitmap.add((int) (i - firstTimestamp));
         }
         return bitmap;
     }

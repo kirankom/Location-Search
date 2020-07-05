@@ -22,10 +22,21 @@ public class Record {
     private byte[] _coordinates;
 
     public Record(long userID, long firstTimestamp, byte[] times, byte[] coordinates) {
+        checkInput(firstTimestamp, times, coordinates);
         this._userID = userID;
         this._firstTimestamp = firstTimestamp;
         this._times = times;
         this._coordinates = coordinates;
+    }
+
+    /* ================== Helper Methods ================== */
+    private void checkInput(double firstTimestamp, byte[] times, byte[] coordinates) {
+        if (firstTimestamp < 0) {
+            throw new IllegalArgumentException("Time must be positive.");
+        }
+        if (times.length == 0 || coordinates.length == 0) {
+            throw new IllegalArgumentException("Timestamp and coordinate arrays must not be empty.");
+        }
     }
 
     /* ================== Getter Methods ================== */

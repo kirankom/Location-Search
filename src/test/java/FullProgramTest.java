@@ -97,9 +97,4 @@ public class FullProgramTest extends Tester {
         System.out.println("PRINTED");
     }
 
-    @Test
-    // searching for timestamps with time bounds
-    public void testSearch() {
-
-    }
 }

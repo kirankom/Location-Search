@@ -18,6 +18,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
 
 public class StorageWriterTest extends Tester {
 
@@ -50,6 +51,9 @@ public class StorageWriterTest extends Tester {
         assertEquals(newRecord.getFirstTimestamp(), record.getFirstTimestamp());
         assertArrayEquals(newRecord.getTimes(), record.getTimes());
         assertArrayEquals(newRecord.getCoordinates(), record.getCoordinates());
+
+        // invalid user ID test -- throws IllegalArgExcp, so passes!
+        // Record errRecord = sw.getRecord(1477431);
 
         System.out.println("CHECK COMPLETE!");
     }

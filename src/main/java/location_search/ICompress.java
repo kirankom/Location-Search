@@ -18,6 +18,5 @@ public interface ICompress {
 
     byte[] appendTimestamps(byte[] times, Iterable<Long> iterTimes, long firstTimestamp);
 
-    byte[] appendCoordiantes(byte[] coordinates, Iterable<Coordinate> iterCoordinates);
-
+    byte[] appendCoordinates(byte[] coordinates, Iterable<Coordinate> iterCoordinates);
 }

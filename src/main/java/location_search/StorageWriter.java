@@ -96,6 +96,7 @@ public class StorageWriter implements IStoreWriter {
         Long firstTimestamp = 0L;
         byte[] times = null;
         byte[] coordinates = null;
+        boolean recordExists = false;
 
         try {
             _rs = _stmt.executeQuery(query);
@@ -103,16 +104,15 @@ public class StorageWriter implements IStoreWriter {
                 firstTimestamp = _rs.getLong("first_timestamp");
                 times = _rs.getBytes("timestamps");
                 coordinates = _rs.getBytes("coordinates");
+                recordExists = true;
             }
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);
         }
 
-        ////////////////// not sure what to do here ///////////////////////
-        if (times == null && coordinates == null && firstTimestamp == 0L) {
-            System.err.println("Record not found");
-            return null;
+        if (!recordExists) {
+            throw new IllegalArgumentException("Record does not exist.");
         }
 
         return new Record(userID, firstTimestamp, times, coordinates);
@@ -133,7 +133,7 @@ public class StorageWriter implements IStoreWriter {
     public Iterable<Coordinate> search(long userID, long startTime, long endTime) {
 
         if (startTime < 0 || startTime >= endTime) {
-            // throw error for invalid input
+            throw new IllegalArgumentException("Time interval is invalid");
         }
 
         List<Coordinate> intervalCoordinates = new ArrayList<Coordinate>();
@@ -183,7 +183,6 @@ public class StorageWriter implements IStoreWriter {
             _rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.exit(1);
         }
     }
 
@@ -227,9 +226,9 @@ public class StorageWriter implements IStoreWriter {
             // SETTING AUTOCOMMIT TO FALSE!
             conn.setAutoCommit(false);
         } catch (ClassNotFoundException e) {
-            System.exit(1);
+            e.printStackTrace();
         } catch (SQLException e) {
-            System.exit(1);
+            throw new IllegalArgumentException("Database name or login credentials are incorrect.", e);
         }
         return conn;
     }
