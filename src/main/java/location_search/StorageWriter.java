@@ -160,7 +160,7 @@ public class StorageWriter implements IStoreWriter {
      */
     private void createTable() {
         String tableCmd = "CREATE TABLE IF NOT EXISTS " + _tableName
-                + " (user_ID BIGINT PRIMARY KEY NOT NULL, first_timestamp BIGINT NOT NULL, timestamps VARBINARY(30000) NOT NULL, coordinates VARBINARY(30000) NOT NULL)";
+                + " (user_ID BIGINT PRIMARY KEY NOT NULL, first_timestamp BIGINT NOT NULL, timestamps LONGBLOB NOT NULL, coordinates LONGBLOB NOT NULL)";
 
         try {
             Statement tableStmt = _conn.createStatement();
