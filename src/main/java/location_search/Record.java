@@ -1,5 +1,7 @@
 package location_search;
 
+import java.util.Iterator;
+
 /**
  * Represents a database record of one user that contains their user ID,
  * timestamps, and location data.
@@ -23,6 +25,7 @@ public class Record {
 
     public Record(long userID, long firstTimestamp, byte[] times, byte[] coordinates) {
         checkInput(firstTimestamp, times, coordinates);
+        checkNumDataPoints(firstTimestamp, times, coordinates);
         this._userID = userID;
         this._firstTimestamp = firstTimestamp;
         this._times = times;
@@ -30,12 +33,28 @@ public class Record {
     }
 
     /* ================== Helper Methods ================== */
+
     private void checkInput(double firstTimestamp, byte[] times, byte[] coordinates) {
         if (firstTimestamp < 0) {
             throw new IllegalArgumentException("Time must be positive.");
         }
         if (times.length == 0 || coordinates.length == 0) {
             throw new IllegalArgumentException("Timestamp and coordinate arrays must not be empty.");
+        }
+    }
+
+    private void checkNumDataPoints(long firstTimestamp, byte[] times, byte[] coordinates) {
+        Compressor compressor = new Compressor();
+        Iterator<Long> timesIter = compressor.decompressTimestamps(times, firstTimestamp).iterator();
+        Iterator<Coordinate> coordinateIter = compressor.decompressCoordinates(coordinates).iterator();
+
+        while (timesIter.hasNext() && coordinateIter.hasNext()) {
+            timesIter.next();
+            coordinateIter.next();
+        }
+
+        if (timesIter.hasNext() || coordinateIter.hasNext()) {
+            throw new IllegalArgumentException("The number of timestamps must equal the number of coordinates.");
         }
     }
 
