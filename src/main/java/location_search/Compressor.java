@@ -136,17 +136,6 @@ public class Compressor implements ICompress {
         RoaringBitmap concatenated = RoaringBitmap.or(origBitmap, newBitmap);
 
         return compress(serializeBitmap(concatenated));
-
-        // byte[] origBitmapCompressed = decompress(originalData);
-        // byte[] newBitmapCompressed = serializeBitmap(addToBitmap(newTimes,
-        // firstTimestamp));
-        // return compress(ArrayUtils.addAll(origBitmapCompressed,
-        // newBitmapCompressed));
-
-        // ----------------------------- //
-
-        // byte[] newData = compressTimestamps(newTimes, firstTimestamp);
-        // return ArrayUtils.addAll(originalData, newData);
     }
 
     /**

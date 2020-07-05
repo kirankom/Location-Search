@@ -3,8 +3,6 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
-import com.mysql.cj.conf.PropertyDefinitions.SslMode;
-
 import java.util.ArrayList;
 
 import location_search.Compressor;
@@ -18,11 +16,13 @@ public class CompressorTest extends Tester {
 
     @Test
     public void testTimeCompression() {
+        // Passed
         System.out.println(record.getTimes().length);
     }
 
     @Test
     public void testCoordinateCompressionAndEncodingWriter() {
+        // Passed
         byte[] compressedCoordinates = record.getCoordinates();
         System.out.println("AFTER: " + compressedCoordinates.length);
         compressor.compressCoordinates(testCoordinates);
@@ -30,6 +30,7 @@ public class CompressorTest extends Tester {
 
     @Test
     public void testTimeDecompression() {
+        // Passed
         long firstTime = times.get(0);
         byte[] compressedTimes = compressor.compressTimestamps(times, firstTime);
         Iterable<Long> decompressedTimes = compressor.decompressTimestamps(compressedTimes, firstTime);
@@ -45,7 +46,7 @@ public class CompressorTest extends Tester {
 
     @Test
     public void testCoordinateDecompression() {
-        // byte[] compressedCoordinates = compressor.compressCoordinates(coordinates);
+        // Passed
         Iterable<Coordinate> decompressedCoordinates = compressor.decompressCoordinates(record.getCoordinates());
         int counter = 0;
         for (Coordinate co : decompressedCoordinates) {
@@ -59,6 +60,7 @@ public class CompressorTest extends Tester {
 
     @Test
     public void testAppendTimestamps() {
+        // Passed
         byte[] originalData = compressor.compressTimestamps(testTimes, testTimes.get(0));
         byte[] newData = compressor.appendTimestamps(originalData, appendTimes, testTimes.get(0));
 
@@ -82,7 +84,7 @@ public class CompressorTest extends Tester {
 
     @Test
     public void testAppendCoordinates1() {
-        // Passes
+        // Passed
         byte[] originalData = compressor.compressCoordinates(testCoordinates);
         byte[] newData = compressor.appendCoordiantes(originalData, appendCoordinates);
         System.out.println(originalData.length + " | " + newData.length);
@@ -103,7 +105,7 @@ public class CompressorTest extends Tester {
 
     @Test
     public void testAppendCoordinates2() {
-        // Passes
+        // Passed
         byte[] originalData = compressor.compressCoordinates(coordinates);
         byte[] newData = compressor.appendCoordiantes(originalData, appendCoordinates);
         System.out.println(originalData.length + " | " + newData.length);

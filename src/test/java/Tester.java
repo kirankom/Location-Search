@@ -26,7 +26,7 @@ public class Tester {
 
     String filename = "C:/Users/meetr/Documents/personal_projects/Location-Search/src/test/test.json";
 
-    Long userID = 1234L;
+    Long userID = 12345L;
     List<Long> times = new ArrayList<Long>();
     List<Coordinate> coordinates = new ArrayList<Coordinate>();
     List<Long> testTimes = setTestTimes();
