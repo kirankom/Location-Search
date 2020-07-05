@@ -31,6 +31,8 @@ public class Tester {
     List<Coordinate> coordinates = new ArrayList<Coordinate>();
     List<Long> testTimes = setTestTimes();
     List<Coordinate> testCoordinates = setTestCoordinates();
+    List<Coordinate> appendCoordinates = setAppendCoordinatesList();
+    List<Long> appendTimes = setAppendTimesList();
     Record record = parse();
 
     public Record parse() {
@@ -71,7 +73,7 @@ public class Tester {
         return new Record(userID, firstTimestamp, compressedTimes, compressedCoordinates);
     }
 
-    public List<Long> setTestTimes() {
+    private List<Long> setTestTimes() {
         List<Long> test = new ArrayList<Long>();
         test.add(1416593801893L);
         test.add(1416593928116L);
@@ -84,11 +86,32 @@ public class Tester {
         return test;
     }
 
-    public List<Coordinate> setTestCoordinates() {
+    private List<Long> setAppendTimesList() {
+        List<Long> list = new ArrayList<Long>();
+        list.add(1416593802000L);
+        list.add(1416594984988L);// 1416594984988
+        list.add(1416594984988L);// 1416594984988
+        list.add(1416594984988L);// 1416594984988
+        list.add(1416594984988L);// 1416594984988
+        list.add(1416594984988L);// 1416594984988
+        list.add(1416606663541L);
+        list.add(1416606911766L);
+        return list;
+    }
+
+    private List<Coordinate> setTestCoordinates() {
         List<Coordinate> test = new ArrayList<Coordinate>();
         test.add(new Coordinate(37.3152817, -122.0486348));
         test.add(new Coordinate(37.3153348, -122.0488006));
         return test;
+    }
+
+    private List<Coordinate> setAppendCoordinatesList() {
+        List<Coordinate> list = new ArrayList<Coordinate>();
+        list.add(new Coordinate(47.2354, -119.236435));
+        list.add(new Coordinate(27.2354636, -110.236435));
+        list.add(new Coordinate(7.236, -10.2335));
+        return list;
     }
 
 }

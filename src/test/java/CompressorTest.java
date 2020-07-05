@@ -11,8 +11,6 @@ import location_search.Coordinate;
 public class CompressorTest extends Tester {
 
     private Compressor compressor = new Compressor();
-    private List<Coordinate> appendCoordinates = setAppendCoordinatesList();
-    private List<Long> appendTimes = setAppendTimesList();
 
     @Test
     public void testTimeCompression() {
@@ -86,7 +84,7 @@ public class CompressorTest extends Tester {
     public void testAppendCoordinates1() {
         // Passed
         byte[] originalData = compressor.compressCoordinates(testCoordinates);
-        byte[] newData = compressor.appendCoordiantes(originalData, appendCoordinates);
+        byte[] newData = compressor.appendCoordinates(originalData, appendCoordinates);
         System.out.println(originalData.length + " | " + newData.length);
 
         Iterable<Coordinate> newList = compressor.decompressCoordinates(newData);
@@ -107,7 +105,7 @@ public class CompressorTest extends Tester {
     public void testAppendCoordinates2() {
         // Passed
         byte[] originalData = compressor.compressCoordinates(coordinates);
-        byte[] newData = compressor.appendCoordiantes(originalData, appendCoordinates);
+        byte[] newData = compressor.appendCoordinates(originalData, appendCoordinates);
         System.out.println(originalData.length + " | " + newData.length);
 
         Iterable<Coordinate> newList = compressor.decompressCoordinates(newData);
@@ -130,26 +128,5 @@ public class CompressorTest extends Tester {
         System.out.println("COUNTER = " + counter2);
         assertEquals(counter2, counter1 + 3);
         System.out.println("DONE HERE!");
-    }
-
-    private List<Coordinate> setAppendCoordinatesList() {
-        List<Coordinate> list = new ArrayList<Coordinate>();
-        list.add(new Coordinate(47.2354, -119.236435));
-        list.add(new Coordinate(27.2354636, -110.236435));
-        list.add(new Coordinate(7.236, -10.2335));
-        return list;
-    }
-
-    private List<Long> setAppendTimesList() {
-        List<Long> list = new ArrayList<Long>();
-        list.add(1416593802000L);
-        list.add(1416594984988L);// 1416594984988
-        list.add(1416594984988L);// 1416594984988
-        list.add(1416594984988L);// 1416594984988
-        list.add(1416594984988L);// 1416594984988
-        list.add(1416594984988L);// 1416594984988
-        list.add(1416606663541L);
-        list.add(1416606911766L);
-        return list;
     }
 }
