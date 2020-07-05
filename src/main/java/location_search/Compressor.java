@@ -91,22 +91,6 @@ public class Compressor implements ICompress {
             originalData.add((long) (time + firstTimestamp));
         }
         return originalData;
-
-        /*
-         * // Iterator<Long> iter = originalData.iterator(); // Iterable<Long> iterable
-         * = new Iterable<Long>() { // @Override // public Iterator<Long> iterator() {
-         * // return originalData.iterator(); // } // } // return iterable;
-         * 
-         * // List<Long> somedata = new ArrayList(); // Iterator it =
-         * somedata.iterator();
-         * 
-         * // Iterable<Long> iter = new Iterable<Long> () // {
-         * 
-         * // @Override // public Iterator<Long> iterator() { // // TODO Auto-generated
-         * method stub // return it; // }
-         * 
-         * // } // ;
-         */
     }
 
     /**
@@ -123,7 +107,7 @@ public class Compressor implements ICompress {
 
     /**
      * Appends the new timestamps to the given original time data, and orders them
-     * in ascending order automatically.
+     * in ascending order automatically. Also removes overlapped timestamp data.
      * 
      * @param originalData   original timestamp data stored in byte array
      * @param newTimes       new timestamps to append to originalData
@@ -131,9 +115,15 @@ public class Compressor implements ICompress {
      * @return new concatenated byte array
      */
     public byte[] appendTimestamps(byte[] originalData, Iterable<Long> newTimes, long firstTimestamp) {
+        // size of concat = size of orig + new
+
         RoaringBitmap origBitmap = deserializeBitmap(decompress(originalData));
         RoaringBitmap newBitmap = addToBitmap(newTimes, firstTimestamp);
         RoaringBitmap concatenated = RoaringBitmap.or(origBitmap, newBitmap);
+
+        if (!RoaringBitmap.and(origBitmap, newBitmap).isEmpty()) {
+            throw new IllegalArgumentException("Repeating timestamps are not allowed.");
+        }
 
         return compress(serializeBitmap(concatenated));
     }
