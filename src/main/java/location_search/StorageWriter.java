@@ -202,7 +202,6 @@ public class StorageWriter implements IStoreWriter {
             tableStmt.executeUpdate(tableCmd);
         } catch (SQLException e) {
             e.printStackTrace();
-            System.exit(1);
         }
     }
 
