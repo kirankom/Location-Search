@@ -107,7 +107,8 @@ public class Compressor implements ICompress {
 
     /**
      * Appends the new timestamps to the given original time data, and orders them
-     * in ascending order automatically. Also removes overlapped timestamp data.
+     * in ascending order automatically. Ensures no repeating timestamps are
+     * inputted in the new times.
      * 
      * @param originalData   original timestamp data stored in byte array
      * @param newTimes       new timestamps to append to originalData
@@ -122,7 +123,7 @@ public class Compressor implements ICompress {
         RoaringBitmap concatenated = RoaringBitmap.or(origBitmap, newBitmap);
 
         if (!RoaringBitmap.and(origBitmap, newBitmap).isEmpty()) {
-            throw new IllegalArgumentException("Repeating timestamps are not allowed.");
+            throw new IllegalArgumentException("Overlapping timestamps between the old and new data are not allowed.");
         }
 
         return compress(serializeBitmap(concatenated));
