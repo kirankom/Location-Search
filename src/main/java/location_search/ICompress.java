@@ -10,13 +10,13 @@ public interface ICompress {
 
     byte[] compressTimestamps(Iterable<Long> times, long firstTimestamp);
 
-    byte[] compressCoordinates(Iterable<Coordinate> coordiantes);
+    byte[] compressCoordinates(Iterable<Coordinate> coordinates);
 
     Iterable<Long> decompressTimestamps(byte[] compressedTimes, long firstTimestamp);
 
-    Iterable<Coordinate> decompressCoordinates(byte[] coordianteArray);
+    Iterable<Coordinate> decompressCoordinates(byte[] compressedCoordinates);
 
-    byte[] appendTimestamps(byte[] times, Iterable<Long> iterTimes, long firstTimestamp);
+    byte[] appendTimestamps(byte[] originalData, Iterable<Long> newTimes, long firstTimestamp);
 
-    byte[] appendCoordinates(byte[] coordinates, Iterable<Coordinate> iterCoordinates);
+    byte[] appendCoordinates(byte[] originalData, Iterable<Coordinate> newCoordinates);
 }

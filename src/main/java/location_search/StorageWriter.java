@@ -11,8 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Creates a table and stores and retrieves Records of user data from a
- * database.
+ * Stores and retrieves Records of user data from a database.
  * 
  * @author Meet Vora
  * @since June 29th, 2020
@@ -122,9 +121,6 @@ public class StorageWriter implements IStoreWriter {
      * Returns an iterable of Coordinates of lat/longs that describes the user
      * location within the given time range.
      * 
-     * Issues: 1. Doesn't assume number of timestamps and coordinates are the same,
-     * but doesn't check for them either. 2. Haven't finished error throwing either.
-     * 
      * @param userID    user ID of user
      * @param startTime start time of search interval
      * @param endTime   end time of search interval
@@ -168,7 +164,6 @@ public class StorageWriter implements IStoreWriter {
             _conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.exit(1);
         }
     }
 

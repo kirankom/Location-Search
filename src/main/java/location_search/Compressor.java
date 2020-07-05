@@ -27,8 +27,8 @@ import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.compress.utils.IOUtils;
 
 /**
- * Contains functionality that compresses lat/long coordinates wrapped in a
- * Coordinate class and timestamps into byte arrays.
+ * Compresses lat/long coordinates wrapped in a Coordinate class and timestamps
+ * into byte arrays.
  * 
  * @author Meet Vora
  * @since June 29th, 2020
@@ -118,7 +118,6 @@ public class Compressor implements ICompress {
      * @return new concatenated byte array
      */
     public byte[] appendTimestamps(byte[] originalData, Iterable<Long> newTimes, long firstTimestamp) {
-        // size of concat = size of orig + new
         RoaringBitmap origBitmap = deserializeBitmap(decompress(originalData));
         RoaringBitmap newBitmap = addToBitmap(newTimes, firstTimestamp);
 

@@ -45,6 +45,7 @@ public class Coordinate {
     }
 
     /* ================== Getter Methods ================== */
+
     public double getLat() {
         return _lat;
     }

@@ -34,6 +34,14 @@ public class Record {
 
     /* ================== Helper Methods ================== */
 
+    /**
+     * Ensures that first timestamp is not negative, and that some data is provided
+     * in the byte arrays.
+     * 
+     * @param firstTimestamp first timestamp in data
+     * @param times          all timestamps in compressed byte form (GZIP format)
+     * @param coordinates    all coordinates in compressed byte form (GZIP format)
+     */
     private void checkInput(double firstTimestamp, byte[] times, byte[] coordinates) {
         if (firstTimestamp < 0) {
             throw new IllegalArgumentException("Time must be positive.");
@@ -43,6 +51,14 @@ public class Record {
         }
     }
 
+    /**
+     * Ensures that the number of timestamps and coordinates in the compressed times
+     * and coordinates arrays respectively are the same.
+     * 
+     * @param firstTimestamp first timestamp in data
+     * @param times          all timestamps in compressed byte form (GZIP format)
+     * @param coordinates    all coordinates in compressed byte form (GZIP format)
+     */
     private void checkNumDataPoints(long firstTimestamp, byte[] times, byte[] coordinates) {
         Compressor compressor = new Compressor();
         Iterator<Long> timesIter = compressor.decompressTimestamps(times, firstTimestamp).iterator();
